@@ -1,39 +1,35 @@
-#' Find an optimized linear regression model
+#' Build a linear regression model
 #'
-#' @param data
-#' @param outcome
-#' @param predictors
-#' @param family
-#' @param exclude
-#' @param dim_ratio
-#' @param variable_of_interest
-#' @param include
-#' @param dim_ratio_lax
-#' @param returnAll
+#' @param data Data frame with patient IDs as rows and covariates as columns.
+#' @param outcome Outcome variable. Should be the column name of the desired outcome variable in @data.
+#' @param predictors Vector of predictor variables to select from when building the model. These should be column names in @data.
+#' @param family Used in the glm function: "Type of error distribution and link function to be used in the model. For glm this can be a character string naming a family function, a family function or the result of a call to a family function. For glm.fit only the third option is supported. (See family for details of family functions.)". Defaults to binomial.
+#' @param variable_of_interest (Optional) Variable of interest that from @predictors that must be included in the model.
+#' @param include (Optional) Vector of predictor variable(s) listed in @predictors that the function should include first (after @variable_of_interest) when building the model.
+#' @param exclude (Optional) Vector of predictor variable(s) listed in @predictors to exclude using when building the model.
+#' @param returnAll If "TRUE", returns all models created while iterative building. If "FALSE" (the default), returns the final model created (with the most terms).
 #'
-#' @return
+#' @return Returns either a list of models of different dimensions with the highest signal-to-noise ratio and fitness for their respective dimensions as determined by AIC and log-likelihood, or returns the highest-dimensional model with the highest signal-to-noise ratio as determined by AIC and log-likelihood.
 #' @export
 #'
 buildModel <- function(data = NA,
-                       outcome = c(),
-                       predictors = c(),
+                       outcome = NA,
+                       predictors = NA,
                        family = 'binomial',
                        variable_of_interest = c(),
                        include = c(),
                        exclude = c(),
-                       dim_ratio = 10,
-                       dim_ratio_lax = 1,
                        returnAll = F) {
 
-  if(any(is.na(c(data, outcome, predictors)))) stop('Must enter a data frame for "data".')
+  if(any(is.na(c(data, outcome, predictors)))) stop('Must enter inputs for "data", "outcome", and "predictors".')
 
   outcome <- outcome[outcome %in% names(data)]
   predictors <- predictors[predictors %in% names(data)]
 
-  if(!length(outcome)) outcome <- select.list(names(data),
+  if(!length(outcome)) outcome <- utils::select.list(names(data),
                                               title = 'Please select the outcome variable.')
 
-  if(length(predictors) < 2) predictors <- select.list(names(data), multiple = T,
+  if(length(predictors) < 2) predictors <- utils::select.list(names(data), multiple = T,
                                                        title = 'Please select at least 2 predictor variables.')
 
   variable_of_interest <- variable_of_interest[variable_of_interest %in% predictors]
@@ -82,14 +78,14 @@ buildModel <- function(data = NA,
 
 #' Find next best predictor for a model
 #'
-#' @param data
-#' @param outcome
-#' @param predictors
-#' @param family
-#' @param include
-#' @param exclude
-#' @param baseline
-#' @param verbose
+#' @param data Data frame with patient IDs as rows and covariates as columns.
+#' @param outcome Outcome variable. Should be the column name of the desired outcome variable in @data.
+#' @param predictors Vector of predictor variables to select from when building the model. These should be column names in @data.
+#' @param family Used in the glm function: "Type of error distribution and link function to be used in the model. For glm this can be a character string naming a family function, a family function or the result of a call to a family function. For glm.fit only the third option is supported. (See family for details of family functions.)". Defaults to binomial.
+#' @param baseline (Optional) Predictor variable(s) listed in @predictors to be included in the baseline model to build off of with the rest of the variables listed in @predictors.
+#' @param include (Optional) Vector of predictor variable(s) listed in @predictors that the function should include first (after @variable_of_interest) when building the model.
+#' @param exclude (Optional) Vector of predictor variable(s) listed in @predictors to exclude using when building the model.
+#' @param verbose Whether to print processing statements. Defaults to "TRUE".
 #'
 #' @return Outputs:
 #'    improved (boolean)
@@ -101,10 +97,9 @@ buildModel <- function(data = NA,
 #'    LogLiks (list of LogLiks for all predictors)
 #' @export
 #'
-#' @examples
 find_best_predictor <- function(data = NA,
-                                outcome = c(),
-                                predictors = c(),
+                                outcome = NA,
+                                predictors = NA,
                                 family = 'binomial',
                                 baseline = c(),
                                 include = c(),
@@ -116,10 +111,10 @@ find_best_predictor <- function(data = NA,
   outcome <- outcome[outcome %in% names(data)]
   predictors <- predictors[predictors %in% names(data)]
 
-  if(!length(outcome)) outcome <- select.list(names(data),
+  if(!length(outcome)) outcome <- utils::select.list(names(data),
                                               title = 'Please select the outcome variable.')
 
-  if(length(predictors) < 2) predictors <- select.list(names(data), multiple = T,
+  if(length(predictors) < 2) predictors <- utils::select.list(names(data), multiple = T,
                                                        title = 'Please select at least 2 predictor variables.')
 
   baseline <- baseline[baseline %in% predictors]
@@ -127,9 +122,9 @@ find_best_predictor <- function(data = NA,
   exclude <- exclude[exclude %in% predictors]
 
   if(!length(baseline)) {
-    chooseBaseline <- select.list(c('Yes','No'),
+    chooseBaseline <- utils::select.list(c('Yes','No'),
                                   title = 'Would you like to select variables for a baseline model?')
-    if(chooseBaseline=='Yes') baseline <- select.list(names(data)[!(names(data) %in% outcome)], multiple = T,
+    if(chooseBaseline=='Yes') baseline <- utils::select.list(names(data)[!(names(data) %in% outcome)], multiple = T,
                                                       'Please select the variables that the model must include')
   }
 

@@ -6,8 +6,8 @@
 \usage{
 find_best_predictor(
   data = NA,
-  outcome = c(),
-  predictors = c(),
+  outcome = NA,
+  predictors = NA,
   family = "binomial",
   baseline = c(),
   include = c(),
@@ -16,7 +16,21 @@ find_best_predictor(
 )
 }
 \arguments{
-\item{verbose}{}
+\item{data}{Data frame with patient IDs as rows and covariates as columns.}
+
+\item{outcome}{Outcome variable. Should be the column name of the desired outcome variable in @data.}
+
+\item{predictors}{Vector of predictor variables to select from when building the model. These should be column names in @data.}
+
+\item{family}{Used in the glm function: "Type of error distribution and link function to be used in the model. For glm this can be a character string naming a family function, a family function or the result of a call to a family function. For glm.fit only the third option is supported. (See family for details of family functions.)". Defaults to binomial.}
+
+\item{baseline}{(Optional) Predictor variable(s) listed in @predictors to be included in the baseline model to build off of with the rest of the variables listed in @predictors.}
+
+\item{include}{(Optional) Vector of predictor variable(s) listed in @predictors that the function should include first (after @variable_of_interest) when building the model.}
+
+\item{exclude}{(Optional) Vector of predictor variable(s) listed in @predictors to exclude using when building the model.}
+
+\item{verbose}{Whether to print processing statements. Defaults to "TRUE".}
 }
 \value{
 Outputs:

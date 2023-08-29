@@ -1,12 +1,13 @@
 
 #' Plot ORs
 #'
-#' @param model
-#' @param n_breaks
-#' @param var.rename
-#' @param title
+#' @param model Model of class "aov", "lm", "glm", or "mlm".
+#' @param n_breaks Number of axis ticks to create on the x-axis of the plot.
+#' @param var.rename Named vector to rename covariates with more appropriate names for a visual, if any need to be changed. For example, a column called "responded_to_treatment" could be renamed by inputing "c('responded_to_treatment'='Responded').
+#' @param title Title of the generated figure.
+#' @param var_label_position When the plot is split by variables, this specifies whether the variable labels for each section of the plot are on the "top", "bottom", "right", or "left".
 #'
-#' @return
+#' @return Returns a forest plot of the odds ratios for the predictors in the @model.
 #' @export
 #'
 plotORs <- function(model, n_breaks=7, var.rename=c(), title=NULL, var_label_position='right') {
@@ -51,8 +52,6 @@ plotORs <- function(model, n_breaks=7, var.rename=c(), title=NULL, var_label_pos
 
 #' Local ggplot2 theme
 #'
-#' @return
-#' @export
 #'
 theme_sa <- function() {
   theme_bw()+

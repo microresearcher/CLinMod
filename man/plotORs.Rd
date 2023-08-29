@@ -13,7 +13,18 @@ plotORs(
 )
 }
 \arguments{
-\item{title}{}
+\item{model}{Model of class "aov", "lm", "glm", or "mlm".}
+
+\item{n_breaks}{Number of axis ticks to create on the x-axis of the plot.}
+
+\item{var.rename}{Named vector to rename covariates with more appropriate names for a visual, if any need to be changed. For example, a column called "responded_to_treatment" could be renamed by inputing "c('responded_to_treatment'='Responded').}
+
+\item{title}{Title of the generated figure.}
+
+\item{var_label_position}{When the plot is split by variables, this specifies whether the variable labels for each section of the plot are on the "top", "bottom", "right", or "left".}
+}
+\value{
+Returns a forest plot of the odds ratios for the predictors in the @model.
 }
 \description{
 Plot ORs

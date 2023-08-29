@@ -7,7 +7,14 @@
 pruneModel(models, dim_ratio = 10, dim_ratio_lax = 1)
 }
 \arguments{
-\item{dim_ratio_lax}{}
+\item{models}{List of models for a dataset with differing dimensions. Models must be of class "aov", "lm", "glm", or "mlm". This list does not need to have models of all dimensionalities from 1 to the highest dimensionality.}
+
+\item{dim_ratio}{Number used to determine the highest allowed dimensionality of the model (how many covariates the model is allowed to have on the right-hand side). The number of events in the data divided by @dim_ratio (rounded down to the nearest whole number) yields the highest dimensionality allowed. Defaults to 10.}
+
+\item{dim_ratio_lax}{How many more dimensions is the model allowed to have than that calculated using @dim_ratio_lax. For example, for a dataset with 26 events and a @dim_ratio of 10, 26/10 = 2.6. A @dim_ratio_lax of 0 in this case would prune a model to 2 dimensions, while a @dim_ratio_lax of 1 would prune the model to 3 dimensions (assuming a model with at least 3 dimensions was able to be built).}
+}
+\value{
+Pruned model based on number of events in the dataset used to build the @models, using the highest dimensionality model provided, with the other models used as benchmarks at their respective dimensionalities.
 }
 \description{
 Prune a model from a list of models provided

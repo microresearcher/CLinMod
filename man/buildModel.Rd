@@ -2,24 +2,39 @@
 % Please edit documentation in R/buildModel.R
 \name{buildModel}
 \alias{buildModel}
-\title{Find an optimized linear regression model}
+\title{Build a linear regression model}
 \usage{
 buildModel(
   data = NA,
-  outcome = c(),
-  predictors = c(),
+  outcome = NA,
+  predictors = NA,
   family = "binomial",
   variable_of_interest = c(),
   include = c(),
   exclude = c(),
-  dim_ratio = 10,
-  dim_ratio_lax = 1,
   returnAll = F
 )
 }
 \arguments{
-\item{returnAll}{}
+\item{data}{Data frame with patient IDs as rows and covariates as columns.}
+
+\item{outcome}{Outcome variable. Should be the column name of the desired outcome variable in @data.}
+
+\item{predictors}{Vector of predictor variables to select from when building the model. These should be column names in @data.}
+
+\item{family}{Used in the glm function: "Type of error distribution and link function to be used in the model. For glm this can be a character string naming a family function, a family function or the result of a call to a family function. For glm.fit only the third option is supported. (See family for details of family functions.)". Defaults to binomial.}
+
+\item{variable_of_interest}{(Optional) Variable of interest that from @predictors that must be included in the model.}
+
+\item{include}{(Optional) Vector of predictor variable(s) listed in @predictors that the function should include first (after @variable_of_interest) when building the model.}
+
+\item{exclude}{(Optional) Vector of predictor variable(s) listed in @predictors to exclude using when building the model.}
+
+\item{returnAll}{If "TRUE", returns all models created while iterative building. If "FALSE" (the default), returns the final model created (with the most terms).}
+}
+\value{
+Returns either a list of models of different dimensions with the highest signal-to-noise ratio and fitness for their respective dimensions as determined by AIC and log-likelihood, or returns the highest-dimensional model with the highest signal-to-noise ratio as determined by AIC and log-likelihood.
 }
 \description{
-Find an optimized linear regression model
+Build a linear regression model
 }

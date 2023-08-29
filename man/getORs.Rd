@@ -7,7 +7,14 @@
 getORs(model, repeatVar = F, longer = F)
 }
 \arguments{
-\item{repeatVar}{}
+\item{model}{Model of class "aov", "lm", "glm", or "mlm".}
+
+\item{repeatVar}{Whether to repeat the variable name on the left-most column next to each category for categorical variables. Defaults to "FALSE".}
+
+\item{longer}{Whether to format the table into a longer format or nested format. Defaults to a nested format ("FALSE").}
+}
+\value{
+Dataframe of odds ratios for each predictor in the model.
 }
 \description{
 Get Odds Ratios with confidence intervals and p-values from a linear model
