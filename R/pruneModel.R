@@ -19,9 +19,9 @@ pruneModel <- function(models,
   }
 
   if(any(class(models) %in% valid_classes)) {
-    model.simplest <- glm(data = models$data,
-                          formula = formula(paste(colnames(models$model)[1],'~',colnames(models$model)[2])),
-                          family = 'binomial')
+    model.simplest <- stats::glm(data = models$data,
+                                 formula = stats::formula(paste(colnames(models$model)[1],'~',colnames(models$model)[2])),
+                                 family = 'binomial')
 
     models <- list(model.simplest,
                    models)
@@ -56,10 +56,10 @@ pruneModel <- function(models,
     }
 
     if(length(predictors.added) > 1) {
-      AICs.pruned <- sapply(predictors.added, function(x) AIC(change_model(model.temp, remove = x)))
+      AICs.pruned <- sapply(predictors.added, function(x) AIC(changeModel(model.temp, remove = x)))
       predictor.prune <- names(AICs.pruned)[match(min(AICs.pruned), AICs.pruned)]
 
-      model.temp <- change_model(model.temp, remove = predictor.prune)
+      model.temp <- changeModel(model.temp, remove = predictor.prune)
     } else {
       predictor.prune <- predictors.temp[!(predictors.temp %in% colnames(models[[n-1]]$model))]
       model.temp <- models[[n-1]]

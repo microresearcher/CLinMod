@@ -1,4 +1,5 @@
 
+
 #' Find an optimized model for an outcome variable from a list of predictors
 #'
 #' @param data Data frame with patient IDs as rows and covariates as columns.
@@ -45,13 +46,11 @@ findOptModel <- function(data = NA,
                        variable_of_interest = variable_of_interest,
                        include = include,
                        exclude = exclude,
-                       dim_ratio = dim_ratio,
-                       dim_ratio_lax = dim_ratio_lax,
                        returnAll = T)
 
-  if(length(models) > 1) model.pruned <- prune_model(models,
-                                                     dim_ratio = 10,
-                                                     dim_ratio_lax = 1)
+  if(length(models) > 1) model.pruned <- pruneModel(models,
+                                                    dim_ratio = 10,
+                                                    dim_ratio_lax = 1)
   else model.pruned <- models[[1]]
 
   model.opt <- model.pruned

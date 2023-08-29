@@ -129,11 +129,11 @@ find_best_predictor <- function(data = NA,
   }
 
   if(length(baseline) > 0) {
-    model.baseline <- glm(formula(paste(outcome,'~',paste(baseline, collapse = '+'))),
-                          data = data,
-                          family = family)
-    AIC.baseline <- AIC(model.baseline)
-    fitness.baseline <- logLik(model.baseline)
+    model.baseline <- stats::glm(stats::formula(paste(outcome,'~',paste(baseline, collapse = '+'))),
+                                 data = data,
+                                 family = family)
+    AIC.baseline <- stats::AIC(model.baseline)
+    fitness.baseline <- stats::logLik(model.baseline)
 
     if(verbose) message('Baseline model:\n  ',paste(outcome,'~',paste(baseline, collapse = ' + ')),
                         '\n  AIC: ', signif(AIC.baseline, digits = 3),
@@ -144,17 +144,17 @@ find_best_predictor <- function(data = NA,
 
   # Calculating AICs
   AICs <- lapply(iters, function(x) {
-    AIC(glm(formula(paste(outcome,'~',paste(c(baseline, include, x),collapse = '+'))),
-            data = data,
-            family = family))
+    stats::AIC(stats::glm(stats::formula(paste(outcome,'~',paste(c(baseline, include, x),collapse = '+'))),
+                          data = data,
+                          family = family))
   })
   names(AICs) <- iters
 
   # Calculating Log Likelihoods
   fitness <- lapply(iters, function(x) {
-    as.numeric(logLik(glm(formula(paste(outcome,'~',paste(c(baseline, include, x),collapse = '+'))),
-                          data = data,
-                          family = family)))
+    as.numeric(stats::logLik(stats::glm(stats::formula(paste(outcome,'~',paste(c(baseline, include, x),collapse = '+'))),
+                                        data = data,
+                                        family = family)))
   })
   names(fitness) <- iters
 
@@ -164,10 +164,10 @@ find_best_predictor <- function(data = NA,
 
   # If new model is improved or there is no baseline, set the output model, else output model is the baseline one
   if((AIC.min < AIC.baseline) | !exists('model.baseline')) {
-    model.lowestAIC <- glm(formula(paste(outcome,'~',
-                                         paste(c(baseline, include, names(AIC.min)), collapse = ' + '))),
-                           data = data,
-                           family = family)
+    model.lowestAIC <- stats::glm(stats::formula(paste(outcome,'~',
+                                                paste(c(baseline, include, names(AIC.min)), collapse = ' + '))),
+                                  data = data,
+                                  family = family)
   } else model.lowestAIC <- model.baseline
 
   names(AICs) <- paste0(paste(c(baseline, include),collapse = '_'),'_',names(AICs))

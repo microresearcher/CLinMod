@@ -17,9 +17,9 @@ getORs <- function(model, repeatVar=F, longer=F) {
   vars <- model$model[0,]
   vars <- vars[2:ncol(vars)]
 
-  model_results <- as.data.frame(cbind('OR'=exp(coef(model)),
-                                       '2.5%'=exp(confint(model))[,1],
-                                       '97.5%'=exp(confint(model))[,2],
+  model_results <- as.data.frame(cbind('OR'=exp(stats::coef(model)),
+                                       '2.5%'=exp(stats::confint(model))[,1],
+                                       '97.5%'=exp(stats::confint(model))[,2],
                                        'p_value'=(model %>% broom::tidy(exp = T))$p.value))
 
   model_results <- cbind('Variable'=rownames(model_results), model_results)
@@ -34,7 +34,7 @@ getORs <- function(model, repeatVar=F, longer=F) {
 
     r <- grep(var, model_results$Variable)
 
-    lvls.other <- str_replace_all(model_results$Variable[r], var ,'')
+    lvls.other <- stringr::str_replace_all(model_results$Variable[r], var ,'')
     lvl.baseline <- lvls[!(lvls %in% lvls.other)]
 
     if(repeatVar) model_results$Variable[r] <- var

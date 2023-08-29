@@ -29,22 +29,22 @@ plotORs <- function(model, n_breaks=7, var.rename=c(), title=NULL, var_label_pos
   # This is to force ggplot2 to order the variable groups as they are in the table, with the help of tidytext package
   res$order <- rev(1:nrow(res))
 
-  p <- ggplot(data = res, aes(y=tidytext::reorder_within(Level, order, Variable), x=OR, label=Level))+
-    geom_point(size=4, shape=15)+
-    geom_errorbarh(aes(xmin=`2.5%`, xmax=`97.5%`), height=.3)+
-    geom_vline(xintercept=1, linetype='longdash')+
-    facet_wrap(~Variable, ncol=1, scales = 'free_y', strip.position = var_label_position)+
-    scale_x_continuous(trans = 'log',
-                       breaks = scales::log_breaks(n = n_breaks),
-                       labels = scales::label_number(accuracy = 0.1),
-                       expand = c(0.1,0.1))+
+  p <- ggplot2::ggplot(data = res, ggplot2::aes(y=tidytext::reorder_within(Level, order, Variable), x=OR, label=Level))+
+    ggplot2::geom_point(size=4, shape=15)+
+    ggplot2::geom_errorbarh(ggplot2::aes(xmin=`2.5%`, xmax=`97.5%`), height=.3)+
+    ggplot2::geom_vline(xintercept=1, linetype='longdash')+
+    ggplot2::facet_wrap(~Variable, ncol=1, scales = 'free_y', strip.position = var_label_position)+
+    ggplot2::scale_x_continuous(trans = 'log',
+                                breaks = scales::log_breaks(n = n_breaks),
+                                labels = scales::label_number(accuracy = 0.1),
+                                expand = c(0.1,0.1))+
     tidytext::scale_y_reordered()+
     theme_sa()+
-    theme(axis.title.y = element_blank())+
-    labs(x='Odds Ratio (Log-scaled)')
+    ggplot2::theme(axis.title.y = ggplot2::element_blank())+
+    ggplot2::labs(x='Odds Ratio (Log-scaled)')
 
-  if(var_label_position %in% c('top','bottom')) p <- p+theme(strip.text = element_text(hjust = 0))
-  if(!is.null(title)) p <- p+labs(title=title)
+  if(var_label_position %in% c('top','bottom')) p <- p+ggplot2::theme(strip.text = ggplot2::element_text(hjust = 0))
+  if(!is.null(title)) p <- p+ggplot2::labs(title=title)
 
   return(p)
 }
@@ -54,10 +54,10 @@ plotORs <- function(model, n_breaks=7, var.rename=c(), title=NULL, var_label_pos
 #'
 #'
 theme_sa <- function() {
-  theme_bw()+
-    theme(plot.title = element_text(hjust = 0.5, size = 30),
-          axis.title = element_text(size=25),
-          axis.text = element_text(size=22),
-          strip.text = element_text(size=25),
-          strip.background = element_rect(fill = 'white', color = NA))
+  ggplot2::theme_bw()+
+    ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5, size = 30),
+                   axis.title = ggplot2::element_text(size=25),
+                   axis.text = ggplot2::element_text(size=22),
+                   strip.text = ggplot2::element_text(size=25),
+                   strip.background = ggplot2::element_rect(fill = 'white', color = NA))
 }
