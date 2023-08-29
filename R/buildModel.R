@@ -9,7 +9,7 @@
 #' @param exclude (Optional) Vector of predictor variable(s) listed in @predictors to exclude using when building the model.
 #' @param returnAll If "TRUE", returns all models created while iterative building. If "FALSE" (the default), returns the final model created (with the most terms).
 #'
-#' @return Returns either a list of models of different dimensions with the highest signal-to-noise ratio and fitness for their respective dimensions as determined by AIC and log-likelihood, or returns the highest-dimensional model with the highest signal-to-noise ratio as determined by AIC and log-likelihood
+#' @return Returns either a list of models of different dimensions with the highest signal-to-noise ratio and fitness for their respective dimensions as determined by AIC and log-likelihood, or returns the highest-dimensional model with the highest signal-to-noise ratio as determined by AIC and log-likelihood.
 #' @export
 #'
 buildModel <- function(data = NA,
