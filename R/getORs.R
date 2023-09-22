@@ -7,7 +7,7 @@
 #' @return Dataframe of odds ratios for each predictor in the model.
 #' @export
 #'
-getORs <- function(model, repeatVar=F, longer=F) {
+getORs.LM <- function(model, repeatVar=F, longer=F) {
   valid_classes <- c('aov','lm','glm','mlm')
 
   if(!any(class(model) %in% valid_classes)) stop(cat('Model must be one of the following classes:\n ',
