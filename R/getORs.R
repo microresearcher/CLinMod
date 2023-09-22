@@ -1,4 +1,3 @@
-
 #' Get Odds Ratios with confidence intervals and p-values from a linear model
 #'
 #' @param model Model of class "aov", "lm", "glm", or "mlm".
@@ -65,4 +64,48 @@ getORs <- function(model, repeatVar=F, longer=F) {
   rownames(model_results) <- 1:nrow(model_results)
 
   return(model_results)
+}
+
+#' Get the Odds Ratio for a single variable directly from the data
+#'
+#' @param data Data table in data.frame format
+#' @param variable Name of column, in string format, for the variable of interest. Must also be 0/1 or T/F values
+#' @param outcome Name of column, in string format, containing outcome values (as either 0/1 or T/F)
+#' @param alpha Significance level. Defaults to 0.05
+#'
+#' @return Dataframe of Odds Ratio and associated confidence interval and p-value
+#' @export
+#'
+getOR.manual <- function(data,
+                         variable,
+                         outcome,
+                         alpha=0.05) {
+  variable <- variable[variable %in% colnames(data)]
+  outcome <- outcome[outcome %in% colnames(data)]
+
+  freqtab <- table(data[[variable]],data[[outcome]])
+
+  a <- freqtab[1,1]
+  b <- freqtab[1,2]
+  c <- freqtab[2,1]
+  d <- freqtab[2,2]
+
+  OR <- as.numeric((d/c)/(b/a))
+  p <- (factorial(a+b)*factorial(a+c)*factorial(b+d)*factorial(c+d))/
+    (factorial(a+b+c+d)*factorial(a)*factorial(b)*factorial(c)*factorial(d))
+
+  logSE <- sqrt(1/a+1/b+1/c+1/d)
+
+  z <- abs(qnorm(alpha/2))
+  OR_CI.lower <- exp(log(OR) - z*logSE)
+  OR_CI.upper <- exp(log(OR) + z*logSE)
+  # OR_CI <- c(OR_CI.lower,OR_CI.upper)
+
+  res <- data.frame(OR,OR_CI.lower,OR_CI.upper,p)
+  colnames(res) <- c('OR',
+                     paste0(alpha/2*100,'% CI'),
+                     paste0((1-alpha/2)*100,'% CI'),
+                     'p')
+
+  return(res)
 }
