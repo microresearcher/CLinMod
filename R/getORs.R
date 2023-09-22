@@ -99,7 +99,6 @@ getOR.manual <- function(data,
   z <- abs(qnorm(alpha/2))
   OR_CI.lower <- exp(log(OR) - z*logSE)
   OR_CI.upper <- exp(log(OR) + z*logSE)
-  # OR_CI <- c(OR_CI.lower,OR_CI.upper)
 
   res <- data.frame(OR,OR_CI.lower,OR_CI.upper,p)
   colnames(res) <- c('OR',
