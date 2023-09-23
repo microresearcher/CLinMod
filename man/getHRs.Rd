@@ -8,23 +8,24 @@ getHRs(
   data,
   event.time,
   event.status,
-  variable,
+  predictor_formula,
   time.unit = c("days", "weeks", "months", "years"),
-  sig.test = c("loglik", "wald")
+  sig.test = c("logtest", "waldtest")
 )
 }
 \arguments{
 \item{data}{Data table in data.frame format}
 
-\item{event.time}{Name of column, in string format, containing time-to-event values}
+\item{event.time}{Name, in string format, of column in @data containing time-to-event values}
 
-\item{event.status}{Name of column, in string format, containing event status values (as either 0/1 or T/F)}
+\item{event.status}{Name, in string format, of column in @data containing event status values (as either 0/1 or T/F)}
 
-\item{variable}{Name of column, in string format, for the variable of interest. Must also be 0/1 or T/F values}
+\item{predictor_formula}{Arithmetic combination of desired predictor variables in string format. Must be column names in @data}
 
 \item{time.unit}{Specify how the time units are displayed on KM graph. Defaults to days}
 
-\item{sig.test}{Specify type of statistical test to use}
+\item{sig.test}{Specify type of statistical test to use when reporting p-value for formulas containing only 1 variable.
+"logtest" uses log likelihood and "waldtest" uses Wald testing}
 }
 \value{
 Plots a Kaplan-Meier plot and returns dataframe of Hazard Ratios and associated confidence intervals and p-values
