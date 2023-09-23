@@ -20,12 +20,12 @@ getHRs <- function(data,
   event.status <- event.status[event.status %in% colnames(data)]
   var <- variable[variable %in% colnames(data)]
 
-  f <- formula(paste('surv ~',var))
-
   data[[event.time]] <- as.numeric(data[[event.time]])
   data[[event.status]] <- as.numeric(data[[event.status]])
 
   surv <- survival::Surv(data[[event.time]], data[[event.status]])
+
+  f <- formula(paste('surv ~',var))
   fit <- survival::coxph(f, data = data)
 
   res <- data.frame(matrix(ncol = 0,nrow = 1))
