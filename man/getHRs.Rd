@@ -9,7 +9,7 @@ getHRs(
   event.time,
   event.status,
   predictor_formula,
-  time.unit = c("days", "weeks", "months", "years"),
+  time.unit = c("Days", "Weeks", "Months", "Years"),
   sig.test = c("logtest", "waldtest")
 )
 }
