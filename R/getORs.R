@@ -66,11 +66,11 @@ getORs.LM <- function(model, repeatVar=F, longer=F) {
   return(model_results)
 }
 
-#' Get the Odds Ratio for a single variable directly from the data
+#' Get the Odds Ratio for a single binary variable directly from the data
 #'
 #' @param data Data table in data.frame format
 #' @param variable Name of column, in string format, for the variable of interest. Must also be 0/1 or T/F values
-#' @param outcome Name of column, in string format, containing outcome values (as either 0/1 or T/F)
+#' @param response Name of column, in string format, containing boolean response values (as either 0/1 or T/F)
 #' @param alpha Significance level. Defaults to 0.05
 #'
 #' @return Dataframe of Odds Ratio and associated confidence interval and p-value
@@ -78,12 +78,12 @@ getORs.LM <- function(model, repeatVar=F, longer=F) {
 #'
 getOR.manual <- function(data,
                          variable,
-                         outcome,
+                         response,
                          alpha=0.05) {
   variable <- variable[variable %in% colnames(data)]
-  outcome <- outcome[outcome %in% colnames(data)]
+  response <- response[response %in% colnames(data)]
 
-  freqtab <- table(data[[variable]],data[[outcome]])
+  freqtab <- table(data[[variable]],data[[response]])
 
   a <- freqtab[1,1]
   b <- freqtab[1,2]
