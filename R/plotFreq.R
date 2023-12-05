@@ -82,5 +82,14 @@ plotFreq <- function(data,
     print(p)
   }
 
+  if(select.list(title = 'Save figure?', choices = c('Yes', 'No')) == 'Yes') {
+    ggplot2::ggsave(file.path(rstudioapi::selectDirectory(),
+                              paste0(readline('Figure name: '),'.png')),
+                    plot = p,
+                    device='png',
+                    width=10, height=8, units = 'in',
+                    dpi=600)
+  }
+
   return(p)
 }
