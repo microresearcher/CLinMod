@@ -10,10 +10,12 @@ plotFreq(
   response,
   variable_print = NULL,
   response_print = NULL,
+  stratify_by = NULL,
   proportional = F,
   flip = F,
+  separateLegend = F,
   includeNA = F,
-  grp_colors = NULL
+  grp_colors = NA
 )
 }
 \arguments{
@@ -27,9 +29,13 @@ plotFreq(
 
 \item{response_print}{(Optional) Name of the response to display on the figure if different from the column name in @data@}
 
+\item{stratify_by}{(Optional) Name of column, in string format, for a third variable to stratify results and plot by}
+
 \item{proportional}{Whether to display as absolute (if set to False) or proportional values (if set to True)}
 
 \item{flip}{Whether to flip the x and y axes of the figure}
+
+\item{separateLegend}{Whether or not to save legend separately to a different file. Defaults to False}
 
 \item{includeNA}{Whether or not to include NAs in the figure}
 

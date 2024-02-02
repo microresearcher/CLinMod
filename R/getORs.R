@@ -1,3 +1,30 @@
+#' Wrapper function for getting Odds Ratios
+#'
+#' @param model Model of class "aov", "lm", "glm", or "mlm" to calculate OR from a linear model. Must either provide a model or @data with @variable and @response of interest
+#' @param data Data table in data.frame format to calculate OR directly from the data using @variable and @response arguments
+#' @param variable Name of column, in string format, for the variable of interest. Must also be 0/1 or T/F values
+#' @param response Name of column, in string format, containing boolean response values (as either 0/1 or T/F)
+#' @param alpha Significance level. Defaults to 0.05
+#' @param longer Whether to format the table into a longer format or nested format. Defaults to a nested format ("FALSE").
+#' @param repeatVar Whether to repeat the variable name on the left-most column next to each category for categorical variables. Defaults to "FALSE".
+#'
+#' @return Returns table of ORs
+#' @export
+#'
+getORs <- function(model = NULL,
+                   data = NULL, variable = NULL, response = NULL,
+                   alpha = 0.05,
+                   repeatVar = F, longer = F) {
+  if(length(model)) res <- getORs.LM(model = model)
+  else if(all(length(data), length(variable), length(response))) {
+    res <- getORs.LM(data = data, variable = NULL, response = NULL,
+                     alpha = alpha,
+                     repeatVar = F, longer = F)
+  } else stop('Must provide either a model or alternatively data, variable, and response')
+
+  return(res)
+}
+
 #' Get Odds Ratios with confidence intervals and p-values from a linear model
 #'
 #' @param model Model of class "aov", "lm", "glm", or "mlm".

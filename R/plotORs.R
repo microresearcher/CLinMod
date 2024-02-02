@@ -16,7 +16,7 @@ plotORs <- function(model, n_breaks=7, var.rename=c(), title=NULL, var_label_pos
   if(!any(class(model) %in% valid_classes)) stop(cat('Model must be one of the following classes:\n ',
                                                      paste(valid_classes, collapse = '\n  ')))
 
-  res <- getORs(model, repeatVar = T)
+  res <- getORs.LM(model, repeatVar = T)
 
   res <- res[res$Variable != '(Intercept)',]
   res[3:6] <- sapply(res[3:6], as.numeric)

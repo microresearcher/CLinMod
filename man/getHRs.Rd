@@ -9,10 +9,6 @@ getHRs(
   event.time,
   event.status,
   predictor_formula,
-  time.unit = c("Days", "Weeks", "Months", "Years"),
-  showCI = T,
-  showPVal = F,
-  showRiskTab = T,
   sig.test = c("logtest", "waldtest")
 )
 }
@@ -25,19 +21,11 @@ getHRs(
 
 \item{predictor_formula}{Arithmetic combination of desired predictor variables in string format. Must be column names in @data}
 
-\item{time.unit}{Specify how the time units are displayed on KM graph. Defaults to days}
-
-\item{showCI}{Whether or not to show confidence interval ribbons on KM plot. Defaults to True}
-
-\item{showPVal}{Whether or not to show p-value on KM plot. Defaults to False}
-
-\item{showRiskTab}{Whether or not to show risk table below KM plot. Defaults to True}
-
 \item{sig.test}{Specify type of statistical test to use when reporting p-value for formulas containing only 1 variable.
 "logtest" uses log likelihood and "waldtest" uses Wald testing}
 }
 \value{
-Plots a Kaplan-Meier plot and returns dataframe of Hazard Ratios and associated confidence intervals and p-values
+Returns a dataframe of Hazard Ratios and associated confidence intervals and p-values
 }
 \description{
 Get Hazard Ratios

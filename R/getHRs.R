@@ -4,25 +4,22 @@
 #' @param event.time Name, in string format, of column in @data containing time-to-event values
 #' @param event.status Name, in string format, of column in @data containing event status values (as either 0/1 or T/F)
 #' @param predictor_formula Arithmetic combination of desired predictor variables in string format. Must be column names in @data
-#' @param time.unit Specify how the time units are displayed on KM graph. Defaults to days
 #' @param sig.test Specify type of statistical test to use when reporting p-value for formulas containing only 1 variable.
 #'    "logtest" uses log likelihood and "waldtest" uses Wald testing
-#' @param showCI Whether or not to show confidence interval ribbons on KM plot. Defaults to True
-#' @param showPVal Whether or not to show p-value on KM plot. Defaults to False
-#' @param showRiskTab Whether or not to show risk table below KM plot. Defaults to True
-#'
-#' @return Plots a Kaplan-Meier plot and returns dataframe of Hazard Ratios and associated confidence intervals and p-values
+#' @return Returns a dataframe of Hazard Ratios and associated confidence intervals and p-values
 #' @export
 #'
 getHRs <- function(data,
                    event.time,
                    event.status,
                    predictor_formula,
-                   time.unit = c('Days','Weeks','Months','Years'),
-                   showCI = T, showPVal = F, showRiskTab = T,
                    sig.test = c('logtest','waldtest')) {
   event.time <- event.time[event.time %in% colnames(data)]
   event.status <- event.status[event.status %in% colnames(data)]
+
+  if(any(!length(event.time), !length(event.status))) stop(paste0('"',event.time,
+                                                                  '" and "', event.status,
+                                                                  '" must be column names in data'))
 
   vars <- getFormulaVars(predictor_formula)
   na_terms <- vars[!(vars %in% colnames(data))]
@@ -31,13 +28,11 @@ getHRs <- function(data,
 
   data[[event.time]] <- as.numeric(data[[event.time]])
   data[[event.status]] <- as.numeric(data[[event.status]])
-  data.plot <- data
-
   data[vars] <- sapply(data[vars], as.numeric)
 
   surv <- survival::Surv(data[[event.time]], data[[event.status]])
 
-  f <- formula(paste('surv ~',predictor_formula))
+  f <- formula(paste('surv ~', predictor_formula))
   fit <- survival::coxph(f, data = data)
 
   if(length(vars) > 1) {
@@ -65,21 +60,7 @@ getHRs <- function(data,
   p.loglik <- as.numeric(summary(fit)$logtest['pvalue'])
   p.wald <- as.numeric(summary(fit)$waldtest['pvalue'])
 
-  if(missing(time.unit)) time.unit <- 'Days'
-
-  survfit <- ggsurvfit::survfit2(f, data = data.plot)
-
-  p <- ggsurvfit::ggsurvfit(survfit)+
-    ggplot2::labs(x=time.unit,y=event.status)
-
-  if(showCI) p <- p+ggsurvfit::add_confidence_interval()
-  if(showPval) p <- p+ggsurvfit::add_pvalue()
-  if(showRiskTab) p <- p+ggsurvfit::add_risktable()
-
-  show(p)
-
   return(list('Statistics'=res,
               'Log Likelihood p-value'=p.loglik,
-              'Wald test p-value'=p.wald,
-              'KM plot'=p))
+              'Wald test p-value'=p.wald))
 }
