@@ -1,9 +1,9 @@
 #' Get Hazard Ratios
 #'
 #' @param data Data table in data.frame format
-#' @param event.time Name, in string format, of column in @data containing time-to-event values
-#' @param event.status Name, in string format, of column in @data containing event status values (as either 0/1 or T/F)
-#' @param predictor_formula Arithmetic combination of desired predictor variables in string format. Must be column names in @data
+#' @param event.time Name, in string format, of column in data containing time-to-event values
+#' @param event.status Name, in string format, of column in data containing event status values (as either 0/1 or T/F)
+#' @param predictor_formula Arithmetic combination of desired predictor variables in string format. Must be column names in data
 #' @param sig.test Specify type of statistical test to use when reporting p-value for formulas containing only 1 variable.
 #'    "logtest" uses log likelihood and "waldtest" uses Wald testing
 #' @return Returns a dataframe of Hazard Ratios and associated confidence intervals and p-values
@@ -14,6 +14,8 @@ getHRs <- function(data,
                    event.status,
                    predictor_formula,
                    sig.test = c('logtest','waldtest')) {
+  temp <- data
+
   event.time <- event.time[event.time %in% colnames(data)]
   event.status <- event.status[event.status %in% colnames(data)]
 
@@ -28,18 +30,24 @@ getHRs <- function(data,
 
   data[[event.time]] <- as.numeric(data[[event.time]])
   data[[event.status]] <- as.numeric(data[[event.status]])
-  data[vars] <- sapply(data[vars], as.numeric)
+  # temp[vars] <- sapply(data[vars], as.factor)
 
-  surv <- survival::Surv(data[[event.time]], data[[event.status]])
+  surv <- survival::Surv(temp[[event.time]], temp[[event.status]])
 
   f <- formula(paste('surv ~', predictor_formula))
-  fit <- survival::coxph(f, data = data)
+  fit <- survival::coxph(f, data = temp)
 
   if(length(vars) > 1) {
-    res <- data.frame(t(sapply(vars, function(v) data.frame('HR'=unname(exp(coef(fit)[[v]])),
-                                                            'CI.lower'=exp(confint(fit)[v,1]),
-                                                            'CI.upper'=exp(confint(fit)[v,2]),
-                                                            'p'=summary(fit)$coefficients[v,'Pr(>|z|)']))))
+    vars.values <- unlist(sapply(vars, function(v) {
+      levels(unique(as.factor(temp[[v]])))[2:length(unique(temp[[v]]))]
+    }))
+
+    names(fit$coefficients) <- as.vector(vars.values)
+
+    res <- data.frame(t(sapply(vars.values, function(v) data.frame('HR'=unname(exp(coef(fit)[[v]])),
+                                                                   'CI.lower'=exp(confint(fit)[v,1]),
+                                                                   'CI.upper'=exp(confint(fit)[v,2]),
+                                                                   'p'=summary(fit)$coefficients[v,'Pr(>|z|)']))))
     colnames(res) <- c('Hazard Ratio',
                        'CI lower',
                        'CI upper',
