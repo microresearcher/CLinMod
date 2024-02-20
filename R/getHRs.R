@@ -44,10 +44,12 @@ getHRs <- function(data,
 
     names(fit$coefficients) <- as.vector(vars.values)
 
-    res <- data.frame(t(sapply(vars.values, function(v) data.frame('HR'=unname(exp(coef(fit)[[v]])),
-                                                                   'CI.lower'=exp(confint(fit)[v,1]),
-                                                                   'CI.upper'=exp(confint(fit)[v,2]),
-                                                                   'p'=summary(fit)$coefficients[v,'Pr(>|z|)']))))
+    res <- data.frame(t(sapply(as.vector(vars.values), function(v) {
+      data.frame('HR'=unname(exp(coef(fit)[[v]])),
+                 'CI.lower'=exp(confint(fit)[v,1]),
+                 'CI.upper'=exp(confint(fit)[v,2]),
+                 'p'=summary(fit)$coefficients[v,'Pr(>|z|)'])
+    })))
     colnames(res) <- c('Hazard Ratio',
                        'CI lower',
                        'CI upper',
