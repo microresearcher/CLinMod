@@ -4,13 +4,7 @@
 \alias{getHRs}
 \title{Get Hazard Ratios}
 \usage{
-getHRs(
-  data,
-  event.time,
-  event.status,
-  predictor_formula,
-  sig.test = c("logtest", "waldtest")
-)
+getHRs(data, event.time, event.status, predictor_formula)
 }
 \arguments{
 \item{data}{Data table in data.frame format}
@@ -20,9 +14,6 @@ getHRs(
 \item{event.status}{Name, in string format, of column in data containing event status values (as either 0/1 or T/F)}
 
 \item{predictor_formula}{Arithmetic combination of desired predictor variables in string format. Must be column names in data}
-
-\item{sig.test}{Specify type of statistical test to use when reporting p-value for formulas containing only 1 variable.
-"logtest" uses log likelihood and "waldtest" uses Wald testing}
 }
 \value{
 Returns a dataframe of Hazard Ratios and associated confidence intervals and p-values

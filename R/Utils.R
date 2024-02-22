@@ -12,7 +12,8 @@ getFormulaVars <- function(formula) {
                        '\\^' = ',',
                        '\\(' = ',',
                        '\\)' = ',',
-                       '\\|' = ',')
+                       '\\|' = ',',
+                       ' ' = '')
 
   vars <- unlist(strsplit(stringr::str_replace_all(formula,operation_chars),','))
   vars <- vars[!(vars=='')]
