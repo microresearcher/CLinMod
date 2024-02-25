@@ -10,7 +10,6 @@
 #' @param returnAll If "TRUE", returns all models created while iterative building. If "FALSE" (the default), returns the final model created (with the most terms).
 #'
 #' @return Returns either a list of models of different dimensions with the highest signal-to-noise ratio and fitness for their respective dimensions as determined by AIC and log-likelihood, or returns the highest-dimensional model with the highest signal-to-noise ratio as determined by AIC and log-likelihood.
-#' @export
 #'
 buildLM <- function(data = NA,
                     outcome = NA,
@@ -95,7 +94,6 @@ buildLM <- function(data = NA,
 #'    predictors.opt (set of all predictors used in model.opt)
 #'    AICs (list of AICs for all predictors)
 #'    LogLiks (list of LogLiks for all predictors)
-#' @export
 #'
 find_best_predictor <- function(data = NA,
                                 outcome = NA,

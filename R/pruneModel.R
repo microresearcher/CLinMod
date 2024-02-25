@@ -7,7 +7,6 @@
 #' @param verbose Whether to print messages about starting and final models.
 #'
 #' @return Pruned model based on number of events in the dataset used to build the @models, using the highest dimensionality model provided, with the other models used as benchmarks at their respective dimensionalities.
-#' @export
 #'
 pruneModel <- function(models,
                        keep = NULL,
