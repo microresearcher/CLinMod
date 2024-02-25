@@ -15,12 +15,12 @@
 #' @return Returns a model from the @data with the specified @outcome variable and @variable_of_interest, trying to include as many of the @predictors specified in @include, and excluding any @predictors specified in @exclude, pruned using @dim_ratio and @dim_ratio_lax as explained above.
 #' @export
 #'
-createModel <- function(data, outcome, predictors = c(),
-                        include = c(), exclude = c(),
-                        direction = c('both','prune','build'),
-                        dim_ratio = 10, dim_ratio_lax = 0,
-                        family = 'binomial',
-                        trace = T) {
+makeOptModel <- function(data, outcome, predictors = c(),
+                         include = c(), exclude = c(),
+                         direction = c('both','prune','build'),
+                         dim_ratio = 10, dim_ratio_lax = 0,
+                         family = 'binomial',
+                         trace = T) {
   # If no valid outcome variable was specified, ask user to select it from dataframe columns
   outcome <- outcome[outcome %in% colnames(data)]
   if(!length(outcome)) outcome <- utils::select.list(colnames(data),
