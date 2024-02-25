@@ -13,9 +13,10 @@ getFormulaVars <- function(formula) {
                        '\\(' = ',',
                        '\\)' = ',',
                        '\\|' = ',',
-                       ' ' = '')
+                       ' ' = '',
+                       '~' = '')
 
-  vars <- unlist(strsplit(stringr::str_replace_all(formula,operation_chars),','))
+  vars <- unlist(strsplit(stringr::str_replace_all(formula, operation_chars),','))
   vars <- vars[!(vars=='')]
   vars <- vars[is.na(suppressWarnings(as.numeric(vars)))]
 

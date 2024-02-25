@@ -4,7 +4,7 @@
 \alias{getHRs}
 \title{Get Hazard Ratios}
 \usage{
-getHRs(data, event.time, event.status, predictor_formula)
+getHRs(data, event.time, event.status, predictor_formula, repeatVar = F)
 }
 \arguments{
 \item{data}{Data table in data.frame format}
@@ -13,7 +13,9 @@ getHRs(data, event.time, event.status, predictor_formula)
 
 \item{event.status}{Name, in string format, of column in data containing event status values (as either 0/1 or T/F)}
 
-\item{predictor_formula}{Arithmetic combination of desired predictor variables in string format. Must be column names in data}
+\item{predictor_formula}{Arithmetic combination of desired predictor variables in string format. Must use column names in data}
+
+\item{repeatVar}{Whether to repeat the variable name on the left-most column next to each category for categorical variables. Defaults to "FALSE".}
 }
 \value{
 Returns a dataframe of Hazard Ratios and associated confidence intervals and p-values
