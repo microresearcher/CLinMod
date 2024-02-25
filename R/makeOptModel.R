@@ -44,8 +44,9 @@ makeOptModel <- function(data, outcome, predictors = c(),
 
   direction <- match.arg(direction, c('both','prune','build'))
   # Start with largest possible model and prune it
-  if(direction %in% c('prune','both')) {
-    model.largest <- glm(formula(paste(outcome,'~',paste(predictors, collapse = '+'))),
+  if(direction != 'build') {
+    model.largest <- glm(formula(paste(outcome,'~',
+                                       paste(predictors, collapse = '+'))),
                          data = data.reduced,
                          family = family)
 
@@ -59,8 +60,9 @@ makeOptModel <- function(data, outcome, predictors = c(),
                                  trace = trace)
   }
   # Start with simplest possible model and build on it
-  if(direction %in% c('build','both')) {
-    model.smallest <- glm(formula(paste(outcome,'~',paste(include, collapse = '+'))),
+  if(direction != 'prune') {
+    model.smallest <- glm(formula(paste(outcome,'~',
+                                        paste(include, collapse = '+'))),
                           data = data.reduced,
                           family = family)
 
@@ -74,12 +76,16 @@ makeOptModel <- function(data, outcome, predictors = c(),
                                 trace = trace)
   }
 
-  cat('\nOptimally Pruned Model:\n ',
-      paste(model.pruned$formula[2]),paste(model.pruned$formula[1]),paste(model.pruned$formula[3]),
-      '\n  AIC:', model.pruned$aic,'\n')
-  cat('\nOptimally Built Model:\n ',
-      paste(model.built$formula[2]),paste(model.built$formula[1]),paste(model.built$formula[3]),
-      '\n  AIC:', model.built$aic,'\n')
+  if(direction != 'build') cat('\nOptimally Pruned Model:\n ',
+                               paste(model.pruned$formula[2]),
+                               paste(model.pruned$formula[1]),
+                               paste(model.pruned$formula[3]),
+                               '\n  AIC:', model.pruned$aic,'\n')
+  if(direction != 'prune') cat('\nOptimally Built Model:\n ',
+                               paste(model.built$formula[2]),
+                               paste(model.built$formula[1]),
+                               paste(model.built$formula[3]),
+                               '\n  AIC:', model.built$aic,'\n')
 
   ### Now... what to do with model.pruned and model.built?
 
@@ -115,7 +121,7 @@ optModel.AIC <- function(model, predictors, keep = c(),
                          limitDim = T, dim_ratio = 10, dim_ratio_lax = 0,
                          verbose = T, trace = T) {
   # Check if "model" is a valid model by running it through the "update" function
-  update(model, . ~ .)
+  updateModel(model, . ~ .)
 
   # Identify the outcome variable of the model
   outcome <- colnames(model$model)[1]
@@ -168,10 +174,10 @@ optModel.AIC <- function(model, predictors, keep = c(),
     # If trace is TRUE, then this helps make output easier to read.
     if(trace) cat('<> Next Step <>\n')
     AICs.drop <- sapply(predictors.drop, function(p) {
-      extractAIC(update(model, formula(paste('.~.',p))))[2]
+      extractAIC(updateModel(model, formula(paste('.~.',p))))[2]
     })
     AICs.add <- sapply(predictors.add, function(p) {
-      extractAIC(update(model, formula(paste('.~.',p))))[2]
+      extractAIC(updateModel(model, formula(paste('.~.',p))))[2]
     })
 
     # Named vector of all AIC options
@@ -184,7 +190,8 @@ optModel.AIC <- function(model, predictors, keep = c(),
     # Named value of lowest AIC even if it corresponds to removing a variable in the "keep" list
     AIC.min <- AICs[1]
     # Named value of lowest AIC that does not correspond to removing a variable in the "keep" list
-    AIC.next <- AICs[!(gsub('\\- ', '', names(AICs)) %in% keep)][1]
+    # AIC.next <- AICs[!(gsub('\\- ', '', names(AICs)) %in% keep)][1]
+    AIC.next <- AICs[!(names(AICs) %in% paste('-',keep))][1]
 
     # If lowest AIC would result from removing a variable in "keep", then let the user know and use the next best that is not in "keep"
     #  This will not let user know if the second lowest AIC also results from removing a variable in "keep".
@@ -202,7 +209,7 @@ optModel.AIC <- function(model, predictors, keep = c(),
       improving <- F
     } else {
       cat(paste0('<> "',names(AIC.next),'" yields a lower AIC than the current model.'))
-      model <- update(model, formula(paste('.~.',names(AIC.next))))
+      model <- updateModel(model, formula(paste('.~.',names(AIC.next))))
       # Remove the predictor from the list it was in and put it in the other list
       #  If direction is "build" leave the "drop" list NULL
       if(direction != 'build') {

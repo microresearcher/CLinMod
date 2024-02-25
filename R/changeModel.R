@@ -13,7 +13,7 @@ changeModel <- function(model,
                         add = c(),
                         verbose = T) {
   # Check if "model" is a valid model by running it through the "update" function
-  update(model, . ~ .)
+  updateModel(model, . ~ .)
 
   # Predictor and response variables in current model
   vars <- colnames(model$model)
@@ -45,13 +45,35 @@ changeModel <- function(model,
                        paste(ifelse(length(drop), paste('\n  -',paste(drop, collapse = '\n  - ')), '')),
                        '\n')
 
-  model <- update(model, formula(paste('. ~ .',
-                                       ifelse(length(add), paste('+',paste(add, collapse = '+')),''),
-                                       ifelse(length(drop), paste('-',paste(drop, collapse = '-')),''))))
+  model <- updateModel(model,
+                       formula(paste('. ~ .',
+                                     ifelse(length(add),
+                                            paste('+',paste(add, collapse = '+')),''),
+                                     ifelse(length(drop),
+                                            paste('-',paste(drop, collapse = '-')),''))))
 
   cat('\n=== NEW MODEL ===\n',
       paste(model$formula[2]),paste(model$formula[1]),paste(model$formula[3]),
       '\n')
 
   return(model)
+}
+
+#' Wrapper for update() Function
+#'
+#' @param model "An existing fit from a model function such as lm, glm and many others."
+#' @param formula "Changes to the formula – see update.formula for details."
+#' @param ... "Additional arguments to the call, or arguments with changed values. Use name = NULL to remove the argument name."
+#' @param evaluate "If true evaluate the new call else return the call."
+#'
+#' @return Updated model as updated by the update() function
+#' @export
+#'
+updateModel <- function(model, formula, ..., evaluate = T) {
+  model$call$family <- model$family$family
+  return(stats::update(model,
+                       formula(deparse(formula)),
+                       data = model$data,
+                       ...,
+                       evaluate = evaluate))
 }
