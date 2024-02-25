@@ -14,12 +14,12 @@
 getORs <- function(model = NULL,
                    data = NULL, variable = NULL, response = NULL,
                    alpha = 0.05,
-                   repeatVar = F, longer = F) {
-  if(length(model)) res <- getORs.LM(model = model)
+                   longer = F, repeatVar = F) {
+  if(length(model)) res <- getORs.LM(model = model, longer = longer, repeatVar = repeatVar)
   else if(all(length(data), length(variable), length(response))) {
     res <- getORs.LM(data = data, variable = NULL, response = NULL,
                      alpha = alpha,
-                     repeatVar = F, longer = F)
+                     longer = longer, repeatVar = repeatVar)
   } else stop('Must provide either a model or alternatively data, variable, and response')
 
   return(res)
@@ -34,7 +34,7 @@ getORs <- function(model = NULL,
 #' @return Dataframe of odds ratios for each predictor in the model.
 #' @export
 #'
-getORs.LM <- function(model, repeatVar=F, longer=F) {
+getORs.LM <- function(model, longer=F, repeatVar=F) {
   valid_classes <- c('aov','lm','glm','mlm')
 
   if(!any(class(model) %in% valid_classes)) stop(cat('Model must be one of the following classes:\n ',
@@ -44,9 +44,14 @@ getORs.LM <- function(model, repeatVar=F, longer=F) {
   vars <- vars[2:ncol(vars)]
 
   model_results <- as.data.frame(cbind('OR'=exp(stats::coef(model)),
-                                       '2.5%'=exp(stats::confint(model))[,1],
-                                       '97.5%'=exp(stats::confint(model))[,2],
-                                       'p_value'=(model %>% broom::tidy(exp = T))$p.value))
+                                       'CI.lower'=exp(stats::confint(model))[,1],
+                                       'CI.upper'=exp(stats::confint(model))[,2],
+                                       'p'=(model %>% broom::tidy(exp = T))$p.value))
+
+  colnames(model_results) <- c('Odds Ratio',
+                               'CI lower',
+                               'CI upper',
+                               'p-value')
 
   model_results <- cbind('Variable'=rownames(model_results), model_results)
 
@@ -89,6 +94,12 @@ getORs.LM <- function(model, repeatVar=F, longer=F) {
                          model_results[colnames(model_results)!='Variable'])
 
   rownames(model_results) <- 1:nrow(model_results)
+
+  model_results[c('Odds Ratio','CI lower','CI upper','p-value')] <- sapply(model_results[c('Odds Ratio',
+                                                                                           'CI lower',
+                                                                                           'CI upper',
+                                                                                           'p-value')],
+                                                                           function(x) suppressWarnings(as.numeric(x)))
 
   return(model_results)
 }

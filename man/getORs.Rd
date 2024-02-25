@@ -10,8 +10,8 @@ getORs(
   variable = NULL,
   response = NULL,
   alpha = 0.05,
-  repeatVar = F,
-  longer = F
+  longer = F,
+  repeatVar = F
 )
 }
 \arguments{
@@ -25,9 +25,9 @@ getORs(
 
 \item{alpha}{Significance level. Defaults to 0.05}
 
-\item{repeatVar}{Whether to repeat the variable name on the left-most column next to each category for categorical variables. Defaults to "FALSE".}
-
 \item{longer}{Whether to format the table into a longer format or nested format. Defaults to a nested format ("FALSE").}
+
+\item{repeatVar}{Whether to repeat the variable name on the left-most column next to each category for categorical variables. Defaults to "FALSE".}
 }
 \value{
 Returns table of ORs
