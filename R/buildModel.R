@@ -12,14 +12,14 @@
 #' @return Returns either a list of models of different dimensions with the highest signal-to-noise ratio and fitness for their respective dimensions as determined by AIC and log-likelihood, or returns the highest-dimensional model with the highest signal-to-noise ratio as determined by AIC and log-likelihood.
 #' @export
 #'
-buildModel <- function(data = NA,
-                       outcome = NA,
-                       predictors = NA,
-                       family = 'binomial',
-                       variable_of_interest = c(),
-                       include = c(),
-                       exclude = c(),
-                       returnAll = F) {
+buildLM <- function(data = NA,
+                    outcome = NA,
+                    predictors = NA,
+                    family = 'binomial',
+                    variable_of_interest = c(),
+                    include = c(),
+                    exclude = c(),
+                    returnAll = F) {
 
   if(any(is.na(c(data, outcome, predictors)))) stop('Must enter inputs for "data", "outcome", and "predictors".')
 
@@ -112,10 +112,10 @@ find_best_predictor <- function(data = NA,
   predictors <- predictors[predictors %in% names(data)]
 
   if(!length(outcome)) outcome <- utils::select.list(names(data),
-                                              title = 'Please select the outcome variable.')
+                                                     title = 'Please select the outcome variable.')
 
   if(length(predictors) < 2) predictors <- utils::select.list(names(data), multiple = T,
-                                                       title = 'Please select at least 2 predictor variables.')
+                                                       title = 'Please select at least 2 potential predictor variables.')
 
   baseline <- baseline[baseline %in% predictors]
   include <- include[include %in% predictors]
@@ -123,9 +123,9 @@ find_best_predictor <- function(data = NA,
 
   if(!length(baseline)) {
     chooseBaseline <- utils::select.list(c('Yes','No'),
-                                  title = 'Would you like to select variables for a baseline model?')
+                                         title = 'Would you like to select variables for a baseline model?')
     if(chooseBaseline=='Yes') baseline <- utils::select.list(names(data)[!(names(data) %in% outcome)], multiple = T,
-                                                      'Please select the variables that the model must include')
+                                                             'Please select the variables that the model must include')
   }
 
   if(length(baseline) > 0) {
@@ -136,8 +136,8 @@ find_best_predictor <- function(data = NA,
     fitness.baseline <- stats::logLik(model.baseline)
 
     if(verbose) message('Baseline model:\n  ',paste(outcome,'~',paste(baseline, collapse = ' + ')),
-                        '\n  AIC: ', signif(AIC.baseline, digits = 3),
-                        '\n  Log Likelihood (goodness of fit): ', signif(fitness.baseline, digits = 3))
+                        '\n  AIC: ', round(AIC.baseline, 1),
+                        '\n  Log Likelihood (goodness of fit): ', round(fitness.baseline, 1))
   }
 
   iters <- predictors[!(predictors %in% c(baseline, include, exclude))]
@@ -165,7 +165,7 @@ find_best_predictor <- function(data = NA,
   # If new model is improved or there is no baseline, set the output model, else output model is the baseline one
   if((AIC.min < AIC.baseline) | !exists('model.baseline')) {
     model.lowestAIC <- stats::glm(stats::formula(paste(outcome,'~',
-                                                paste(c(baseline, include, names(AIC.min)), collapse = ' + '))),
+                                                       paste(c(baseline, include, names(AIC.min)), collapse = ' + '))),
                                   data = data,
                                   family = family)
   } else model.lowestAIC <- model.baseline
@@ -176,7 +176,7 @@ find_best_predictor <- function(data = NA,
   # If no baseline model, return a model with the best predictor
   if(!exists('model.baseline')) {
     if(verbose) message('\n')
-    message(' "',names(AIC.min),'" yielded the lowest AIC of ',signif(unlist(AIC.min), digits = 3))
+    message(' "',names(AIC.min),'" yielded the lowest AIC of ', round(unlist(AIC.min), 1))
 
     predictors.opt <- c(include, names(AIC.min))
 
@@ -191,8 +191,12 @@ find_best_predictor <- function(data = NA,
 
   # Compare fitness of new model with baseline model
   if(nrow(model.baseline$model) != nrow(model.lowestAIC$model)) {
+    # If dataset is not exactly the same for both models, due to extra missingness in the larger model, then cannot use AIC to compare models.
     if(fitness.max > fitness.baseline) betterFit <- T
   } else if(AIC.min < AIC.baseline) {
+    # If AIC is better, is the LRT significantly better in the larger model?
+    #  I think this confers unnecessary strictness when building larger models.
+    #  That is to say, as long as the fitness improvement overcomes size penalty (as determined by AIC), the larger model is worth keeping.
     betterFit <- lmtest::lrtest(model.lowestAIC, model.baseline)$`Pr(>Chisq)`[2] < 0.05
   } else betterFit <- F
 
@@ -202,20 +206,20 @@ find_best_predictor <- function(data = NA,
     predictors.opt <- c(baseline, include, names(AIC.min))
 
     if(verbose) message('\n')
-    message(' "',names(AIC.min),'" yielded the lowest AIC of ',signif(unlist(AIC.min), digits = 3),
+    message(' "',names(AIC.min),'" yielded the lowest AIC of ',round(unlist(AIC.min), 1),
             ' and provides a better fit than the baseline model.')
     if(verbose) message('\n')
 
     if(verbose) message('Improved model:\n  ',
                         paste(outcome,'~',paste(c(baseline, include, names(AIC.min)), collapse = ' + ')),
-                        '\n  AIC: ', signif(unlist(AIC.min), digits = 3),
-                        '\n  Log Likelihood (goodness of fit): ', signif(unlist(fitness.max), digits = 3),'\n')
+                        '\n  AIC: ', round(unlist(AIC.min), 1),
+                        '\n  Log Likelihood (goodness of fit): ', round(unlist(fitness.max), 1),'\n')
   } else {
     model.opt <- model.baseline
     predictors.opt <- baseline
 
     if(verbose) message('\n')
-    message(' "',names(AIC.min),'" yielded the lowest AIC of ',signif(unlist(AIC.min), digits = 3),
+    message(' "',names(AIC.min),'" yielded the lowest AIC of ',round(unlist(AIC.min), 1),
             ' but did not provide a better fit than the baseline model.')
     if(verbose) message('\n')
   }

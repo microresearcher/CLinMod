@@ -1,6 +1,5 @@
 
-
-#' Find an optimized model for an outcome variable from a list of predictors
+#' Find an optimized linear model for an outcome variable from a list of predictors
 #'
 #' @param data Data frame with patient IDs as rows and covariates as columns.
 #' @param outcome Outcome variable. Should be the column name of the desired outcome variable in @data.
@@ -15,15 +14,15 @@
 #' @return Returns a model from the @data with the specified @outcome variable and @variable_of_interest, trying to include as many of the @predictors specified in @include, and excluding any @predictors specified in @exclude, pruned using @dim_ratio and @dim_ratio_lax as explained above.
 #' @export
 #'
-findOptModel <- function(data = NA,
-                         outcome = c(),
-                         predictors = c(),
-                         family = 'binomial',
-                         variable_of_interest = c(),
-                         include = c(),
-                         exclude = c(),
-                         dim_ratio = 10,
-                         dim_ratio_lax = 1) {
+findOptLM <- function(data = NA,
+                      outcome = c(),
+                      predictors = c(),
+                      family = 'binomial',
+                      variable_of_interest = c(),
+                      include = c(),
+                      exclude = c(),
+                      dim_ratio = 10,
+                      dim_ratio_lax = 1) {
 
   if(any(is.na(c(data, outcome, predictors)))) stop('Must enter a data frame for "data".')
 
@@ -31,26 +30,30 @@ findOptModel <- function(data = NA,
   predictors <- predictors[predictors %in% names(data)]
 
   if(!length(outcome)) outcome <- utils::select.list(names(data),
-                                              title = 'Please select the outcome variable.')
+                                                     title = 'Please select the outcome variable.')
 
   if(length(predictors) < 2) predictors <- utils::select.list(names(data), multiple = T,
-                                                       title = 'Please select at least 2 predictor variables.')
+                                                              title = 'Please select at least 2 potential predictor variables.')
 
   variable_of_interest <- variable_of_interest[variable_of_interest %in% predictors]
   include <- include[include %in% predictors]
 
-  models <- buildModel(data = data,
-                       outcome = outcome,
-                       predictors = predictors,
-                       family = family,
-                       variable_of_interest = variable_of_interest,
-                       include = include,
-                       exclude = exclude,
-                       returnAll = T)
+  # Build model informed by AIC and fitness
+  models <- buildLM(data = data,
+                    outcome = outcome,
+                    predictors = predictors,
+                    family = family,
+                    variable_of_interest = variable_of_interest,
+                    include = include,
+                    exclude = exclude,
+                    returnAll = T)
 
+  # Prune model informed by AIC and number of events in data
   if(length(models) > 1) model.pruned <- pruneModel(models,
-                                                    dim_ratio = 10,
-                                                    dim_ratio_lax = 1)
+                                                    keep = variable_of_interest,
+                                                    dim_ratio = dim_ratio,
+                                                    dim_ratio_lax = dim_ratio_lax,
+                                                    verbose = F)
   else model.pruned <- models[[1]]
 
   model.opt <- model.pruned

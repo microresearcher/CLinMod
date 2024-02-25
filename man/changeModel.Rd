@@ -2,20 +2,22 @@
 % Please edit documentation in R/changeModel.R
 \name{changeModel}
 \alias{changeModel}
-\title{Add or Remove predictors for a model}
+\title{User-friendly Wrapper Function to Add or Drop Predictors for a Model}
 \usage{
-changeModel(model, remove = c(), add = c())
+changeModel(model, drop = c(), add = c(), verbose = T)
 }
 \arguments{
-\item{model}{Model of class "aov", "lm", "glm", or "mlm".}
+\item{model}{Model of class "aov", "lm", "glm", "mlm", "coxph", and potentially other models. Passed to stats::update().}
 
-\item{remove}{Vector of predictor(s) to remove from the model.}
+\item{drop}{Vector of predictor(s) to drop from the model.}
 
 \item{add}{Vector of predictor(s) to add to the model.}
+
+\item{verbose}{Whether to print statements.}
 }
 \value{
-Model with specified predictors removed and added.
+Model with specified variables removed and added.
 }
 \description{
-Add or Remove predictors for a model
+User-friendly Wrapper Function to Add or Drop Predictors for a Model
 }
