@@ -2,15 +2,17 @@
 % Please edit documentation in R/makeOptModel.R
 \name{makeOptModel}
 \alias{makeOptModel}
-\title{Find an optimized linear model for an outcome variable from a list of predictors}
+\title{Find an optimized linear model for an response variable from a list of predictors}
 \usage{
 makeOptModel(
   data,
-  outcome,
+  response,
+  time = NULL,
   predictors = c(),
   include = c(),
   exclude = c(),
   direction = c("both", "prune", "build"),
+  limitDim = T,
   dim_ratio = 10,
   dim_ratio_lax = 0,
   family = "binomial",
@@ -20,7 +22,9 @@ makeOptModel(
 \arguments{
 \item{data}{Data frame with patient IDs as rows and covariates as columns.}
 
-\item{outcome}{Outcome variable. Should be the column name of the desired outcome variable in @data.}
+\item{response}{Response variable. Should be the column name of the desired response variable in @data.}
+
+\item{time}{For survival data, the time variable corresponding to the response.}
 
 \item{predictors}{Vector of predictor/independent variables to select from when building the model. These should be column names in @data.}
 
@@ -29,6 +33,8 @@ makeOptModel(
 \item{exclude}{(Optional) Vector of predictor variable(s) listed in @predictors to exclude when building the model.}
 
 \item{direction}{The mode of stepwise model creation. Can be one of "build", "prune", or "both". Defaults to "both".}
+
+\item{limitDim}{Whether to limit the dimensionality (size) of the model based on the number of observations in the data.}
 
 \item{dim_ratio}{Number used in the pruning step to determine the highest allowed dimensionality of the model (how many covariates the model is allowed to have on the right-hand side). The number of events in the data divided by @dim_ratio (rounded down to the nearest whole number) yields the highest dimensionality allowed. Defaults to 10.}
 
@@ -39,8 +45,8 @@ makeOptModel(
 \item{trace}{Whether to print out all AICs at each step. Defaults to TRUE.}
 }
 \value{
-Returns a model from the @data with the specified @outcome variable and @variable_of_interest, trying to include as many of the @predictors specified in @include, and excluding any @predictors specified in @exclude, pruned using @dim_ratio and @dim_ratio_lax as explained above.
+Returns a model from the @data with the specified @response variable and @variable_of_interest, trying to include as many of the @predictors specified in @include, and excluding any @predictors specified in @exclude, pruned using @dim_ratio and @dim_ratio_lax as explained above.
 }
 \description{
-Find an optimized linear model for an outcome variable from a list of predictors
+Find an optimized linear model for an response variable from a list of predictors
 }

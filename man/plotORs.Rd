@@ -5,23 +5,47 @@
 \title{Plot ORs}
 \usage{
 plotORs(
-  model,
+  model = NULL,
+  data = NULL,
+  response = NULL,
+  predictors = NULL,
+  family = "binomial",
+  subgroup_by = NULL,
   n_breaks = 7,
-  var.rename = c(),
+  var.rename = c(` ` = " "),
   title = NULL,
-  var_label_position = "right"
+  var_label_position = "top",
+  annotateStats = T,
+  annotatePVal = F,
+  annotateEffect = F
 )
 }
 \arguments{
 \item{model}{Model of class "aov", "lm", "glm", or "mlm".}
 
+\item{data}{Data table in data.frame format to calculate OR directly from the data using @variable and @response arguments}
+
+\item{response}{Name of column, in string format, containing boolean response values (as either 0/1 or T/F)}
+
+\item{predictors}{Name of column, in string format, for the variable of interest. Must also be 0/1 or T/F values or continuous values}
+
+\item{family}{Used in the glm function: "Type of error distribution and link function to be used in the model. For glm this can be a character string naming a family function, a family function or the result of a call to a family function. For glm.fit only the third option is supported. (See family for details of family functions.)". Defaults to binomial.}
+
+\item{subgroup_by}{(Optional) Vector of variable names for subgroup analyses. Must be column names in data that are not in predictor_formula.}
+
 \item{n_breaks}{Number of axis ticks to create on the x-axis of the plot. Passed onto internal plotForestPlot function.}
 
-\item{var.rename}{Named vector to rename variables with more appropriate names for a visual, if any need to be changed. For example, a column called "responded_to_treatment" could be renamed by inputing "c('responded_to_treatment'='Responded'). Passed onto internal plotForestPlot function.}
+\item{var.rename}{Named vector to rename predictors with more appropriate names for a visual, if any need to be changed. For example, a column called "responded_to_treatment" could be renamed by inputing "c('responded_to_treatment'='Responded'). Passed onto internal plotForestPlot function.}
 
 \item{title}{Title of the generated figure. Passed onto internal plotForestPlot function.}
 
-\item{var_label_position}{When the plot is split by variables, this specifies whether the variable labels for each section of the plot are on the "top", "bottom", "right", or "left". Passed onto internal plotForestPlot function.}
+\item{var_label_position}{When the plot is split by predictors, this specifies whether the variable labels for each section of the plot are on the "top", "bottom", "right", or "left". Passed onto internal plotForestPlot function.}
+
+\item{annotateStats}{Whether to add annotations for the HR values and confidence intervals. Defaults to True}
+
+\item{annotatePVal}{Whether to add annotations for p-values for each group. Defaults to False}
+
+\item{annotateEffect}{Whether to annotations "helpful" and "harmful" on each side of the y-axis. Defaults to False}
 }
 \value{
 Returns a forest plot of the odds ratios for the predictors in the @model.

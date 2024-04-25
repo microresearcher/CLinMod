@@ -7,11 +7,14 @@
 getORs(
   model = NULL,
   data = NULL,
-  variable = NULL,
   response = NULL,
+  predictors = NULL,
+  family = "binomial",
+  subgroup_by = NULL,
   alpha = 0.05,
   longer = F,
-  repeatVar = F
+  repeatVar = F,
+  verbose = T
 )
 }
 \arguments{
@@ -19,15 +22,21 @@ getORs(
 
 \item{data}{Data table in data.frame format to calculate OR directly from the data using @variable and @response arguments}
 
-\item{variable}{Name of column, in string format, for the variable of interest. Must also be 0/1 or T/F values}
-
 \item{response}{Name of column, in string format, containing boolean response values (as either 0/1 or T/F)}
+
+\item{predictors}{Name of column, in string format, for the variable of interest. Must also be 0/1 or T/F values or continuous values}
+
+\item{family}{Used in the glm function: "Type of error distribution and link function to be used in the model. For glm this can be a character string naming a family function, a family function or the result of a call to a family function. For glm.fit only the third option is supported. (See family for details of family functions.)". Defaults to binomial.}
+
+\item{subgroup_by}{(Optional) Vector of variable names for subgroup analyses. Must be column names in data that are not in predictor_formula.}
 
 \item{alpha}{Significance level. Defaults to 0.05}
 
 \item{longer}{Whether to format the table into a longer format or nested format. Defaults to a nested format ("FALSE").}
 
-\item{repeatVar}{Whether to repeat the variable name on the left-most column next to each category for categorical variables. Defaults to "FALSE".}
+\item{repeatVar}{Whether to repeat the variable name on the left-most column next to each category for categorical predictors. Defaults to "FALSE".}
+
+\item{verbose}{Whether to print extra information during processing and analysis. Defaults to True.}
 }
 \value{
 Returns table of ORs

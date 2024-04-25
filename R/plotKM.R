@@ -32,9 +32,11 @@ plotKM <- function(data,
   variable <- variable[variable %in% colnames(data)]
   if(missing(event.name)) event.name <- event.status
 
-  if(!all(length(event.time), length(event.status), length(variable))) stop(paste0('"',event.time,
-                                                                                   '" and "', event.status,
-                                                                                   '" must be column names in data'))
+  if(!all(length(event.time),
+          length(event.status),
+          length(variable))) stop(paste0('"',event.time,
+                                         '" and "', event.status,
+                                         '" must be column names in data'))
 
   f <- as.formula(paste('surv ~', variable))
 
@@ -43,9 +45,9 @@ plotKM <- function(data,
 
   data[[event.time]] <- as.numeric(data[[event.time]])
 
-  if(time.unit!=convert.time) {
+  if(time.unit != convert.time) {
     unit.factors <- list('Days'=365.24, 'Weeks'=52, 'Months'=12, 'Years'=1)
-    data[[event.time]] <- data[[event.time]] * unit.factors[[convert.time]]/unit.factors[[time.unit]]
+    data[[event.time]] <- data[[event.time]] * unit.factors[[convert.time]] / unit.factors[[time.unit]]
     time.unit <- convert.time
   }
 
@@ -62,13 +64,16 @@ plotKM <- function(data,
                    axis.text = ggplot2::element_text(size=20),
                    legend.title = ggplot2::element_blank(),
                    legend.text = ggplot2::element_text(size=18),
-                   legend.key.size = ggplot2::unit(1,'cm'))
+                   legend.key.size = ggplot2::unit(1,'cm'))+
+    ggplot2::scale_y_continuous(expand = c(0, 0), limits = c(0, NA))
 
   if(showCI) p <- p+ggsurvfit::add_confidence_interval()
-  if(showPVal) p <- p+ggsurvfit::add_pvalue()
+  if(showPVal) p <- p+ggsurvfit::add_pvalue(size = 10)
   if(showRiskTab) p <- p+ggsurvfit::add_risktable()
 
   if(offerSave) savePlot(p, width = width, height = height)
 
+  logrank <- survival::survdiff(formula = f, data = data)
+  print(logrank)
   return(p)
 }

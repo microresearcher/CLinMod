@@ -17,7 +17,7 @@ optModel.AIC(
 )
 }
 \arguments{
-\item{model}{Model of class "aov", "lm", "glm", "mlm", "coxph", and potentially other models. Passed to stats::update().}
+\item{model}{Model of class "aov", "lm", "glm", "mlm", "coxph", and potentially other models. Passed to stats::update() through wrapper updateModel().}
 
 \item{predictors}{Vector of all predictor/independent variables to consider including in the model. These should be column names in @model$data.}
 

@@ -4,7 +4,15 @@
 \alias{getHRs}
 \title{Get Hazard Ratios}
 \usage{
-getHRs(data, event.time, event.status, predictor_formula, repeatVar = F)
+getHRs(
+  data,
+  event.time,
+  event.status,
+  predictor_formula,
+  subgroup_by = NULL,
+  repeatVar = F,
+  verbose = T
+)
 }
 \arguments{
 \item{data}{Data table in data.frame format}
@@ -15,7 +23,11 @@ getHRs(data, event.time, event.status, predictor_formula, repeatVar = F)
 
 \item{predictor_formula}{Arithmetic combination of desired predictor variables in string format. Must use column names in data}
 
-\item{repeatVar}{Whether to repeat the variable name on the left-most column next to each category for categorical variables. Defaults to "FALSE".}
+\item{subgroup_by}{(Optional) Vector of variable names for subgroup analyses. Must be column names in data that are not in predictor_formula.}
+
+\item{repeatVar}{Whether to repeat the variable name on the left-most column next to each category for categorical variables. Defaults to False}
+
+\item{verbose}{Whether to print extra information during processing and analysis. Defaults to True.}
 }
 \value{
 Returns a dataframe of Hazard Ratios and associated confidence intervals and p-values

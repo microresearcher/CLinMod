@@ -9,10 +9,14 @@ plotHRs(
   event.time,
   event.status,
   predictor_formula,
+  subgroup_by = NULL,
   n_breaks = 7,
-  var.rename = c(),
+  var.rename = c(` ` = " "),
   title = NULL,
-  var_label_position = "top"
+  var_label_position = "top",
+  annotateStats = T,
+  annotatePVal = F,
+  annotateEffect = F
 )
 }
 \arguments{
@@ -22,15 +26,23 @@ plotHRs(
 
 \item{event.status}{Name, in string format, of column in data containing event status values (as either 0/1 or T/F).}
 
-\item{predictor_formula}{Arithmetic combination of desired predictor variables in string format. Must be column names in data.}
+\item{predictor_formula}{Arithmetic combination of desired predictor predictors in string format. Must be column names in data.}
+
+\item{subgroup_by}{(Optional) Vector of variable names for subgroup analyses. Must be column names in data that are not in predictor_formula.}
 
 \item{n_breaks}{Number of axis ticks to create on the x-axis of the plot. Passed onto internal plotForestPlot function.}
 
-\item{var.rename}{Named vector to rename variables with more appropriate names for a visual, if any need to be changed. For example, a column called "responded_to_treatment" could be renamed by inputing "c('responded_to_treatment'='Responded'). Passed onto internal plotForestPlot function.}
+\item{var.rename}{Named vector to rename predictors with more appropriate names for a visual, if any need to be changed. For example, a column called "responded_to_treatment" could be renamed by inputing "c('responded_to_treatment'='Responded'). Passed onto internal plotForestPlot function.}
 
 \item{title}{Title of the generated figure. Passed onto internal plotForestPlot function.}
 
-\item{var_label_position}{When the plot is split by variables, this specifies whether the variable labels for each section of the plot are on the "top", "bottom", "right", or "left". Passed onto internal plotForestPlot function.}
+\item{var_label_position}{When the plot is split by predictors, this specifies whether the variable labels for each section of the plot are on the "top", "bottom", "right", or "left". Passed onto internal plotForestPlot function.}
+
+\item{annotateStats}{Whether to add annotations for the HR values and confidence intervals. Defaults to True}
+
+\item{annotatePVal}{Whether to add annotations for p-values for each group. Defaults to False}
+
+\item{annotateEffect}{Whether to annotations "helpful" and "harmful" on each side of the y-axis. Defaults to False}
 }
 \value{
 Returns a forest plot of the hazard ratios for the predictors in the @model.
