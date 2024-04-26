@@ -3,7 +3,7 @@
 #' @param data Data table in data.frame format
 #' @param event.time Name, in string format, of column in @data containing time-to-event values
 #' @param event.status Name, in string format, of column in @data containing event status values (as either 1/0 or T/F)
-#' @param variable Variable of interest to separate data by into different curves. Must be a column name in @data
+#' @param predictor Variable of interest to separate data by into different curves. Must be a column name in @data
 #' @param time.unit Specify how the time units are displayed on KM graph. Defaults to days
 #' @param convert.time (Optional) Specify an alternate time unit to display on the KM plot
 #' @param event.name (Optional) Name to display on y-axis title of KM plot. Will display as "@event.name Probability". Defaults to @event.status
@@ -20,7 +20,7 @@
 plotKM <- function(data,
                    event.time,
                    event.status,
-                   variable,
+                   predictor,
                    time.unit = c('Days','Weeks','Months','Years'),
                    convert.time = c('Days','Weeks','Months','Years'),
                    event.name,
@@ -29,16 +29,14 @@ plotKM <- function(data,
                    width = 8, height = 4) {
   event.time <- event.time[event.time %in% colnames(data)]
   event.status <- event.status[event.status %in% colnames(data)]
-  variable <- variable[variable %in% colnames(data)]
+  predictor <- predictor[predictor %in% colnames(data)]
   if(missing(event.name)) event.name <- event.status
 
-  if(!all(length(event.time),
-          length(event.status),
-          length(variable))) stop(paste0('"',event.time,
-                                         '" and "', event.status,
-                                         '" must be column names in data'))
+  if(!length(event.time)) stop(paste0('"',event.time,'" must be a column name in data'))
+  if(!length(event.status)) stop(paste0('"',event.status,'" must be a column name in data'))
+  if(!length(predictor)) stop(paste0('"',predictor,'" must be a column name in data'))
 
-  f <- as.formula(paste('surv ~', variable))
+  f <- as.formula(paste('surv ~', predictor))
 
   time.unit <- match.arg(time.unit)
   convert.time <- match.arg(convert.time)
