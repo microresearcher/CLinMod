@@ -8,7 +8,7 @@ plotHRs(
   data,
   event.time,
   event.status,
-  predictor_formula,
+  predictors,
   subgroup_by = NULL,
   n_breaks = 7,
   var.rename = c(` ` = " "),
@@ -26,9 +26,9 @@ plotHRs(
 
 \item{event.status}{Name, in string format, of column in data containing event status values (as either 0/1 or T/F).}
 
-\item{predictor_formula}{Arithmetic combination of desired predictor predictors in string format. Must be column names in data.}
+\item{predictors}{Either a vector of 1 or more predictor variables or an arithmetic combination of predictor variables in character format}
 
-\item{subgroup_by}{(Optional) Vector of variable names for subgroup analyses. Must be column names in data that are not in predictor_formula.}
+\item{subgroup_by}{(Optional) Vector of variable names for subgroup analyses. Must be column names in data that are not in predictors}
 
 \item{n_breaks}{Number of axis ticks to create on the x-axis of the plot. Passed onto internal plotForestPlot function.}
 

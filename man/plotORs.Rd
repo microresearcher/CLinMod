@@ -31,7 +31,7 @@ plotORs(
 
 \item{family}{Used in the glm function: "Type of error distribution and link function to be used in the model. For glm this can be a character string naming a family function, a family function or the result of a call to a family function. For glm.fit only the third option is supported. (See family for details of family functions.)". Defaults to binomial.}
 
-\item{subgroup_by}{(Optional) Vector of variable names for subgroup analyses. Must be column names in data that are not in predictor_formula.}
+\item{subgroup_by}{(Optional) Vector of variable names for subgroup analyses. Must be column names in data that are not in predictors}
 
 \item{n_breaks}{Number of axis ticks to create on the x-axis of the plot. Passed onto internal plotForestPlot function.}
 

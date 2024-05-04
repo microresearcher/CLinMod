@@ -8,7 +8,7 @@ getHRs(
   data,
   event.time,
   event.status,
-  predictor_formula,
+  predictors,
   subgroup_by = NULL,
   repeatVar = F,
   verbose = T
@@ -21,7 +21,7 @@ getHRs(
 
 \item{event.status}{Name, in string format, of column in data containing event status values (as either 0/1 or T/F)}
 
-\item{predictor_formula}{Arithmetic combination of desired predictor variables in string format. Must use column names in data}
+\item{predictors}{Either a vector of 1 or more predictor variables or an arithmetic combination of predictor variables in character format}
 
 \item{subgroup_by}{(Optional) Vector of variable names for subgroup analyses. Must be column names in data that are not in predictor_formula.}
 

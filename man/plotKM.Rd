@@ -8,7 +8,7 @@ plotKM(
   data,
   event.time,
   event.status,
-  variable,
+  predictor,
   time.unit = c("Days", "Weeks", "Months", "Years"),
   convert.time = c("Days", "Weeks", "Months", "Years"),
   event.name,
@@ -27,7 +27,7 @@ plotKM(
 
 \item{event.status}{Name, in string format, of column in @data containing event status values (as either 1/0 or T/F)}
 
-\item{variable}{Variable of interest to separate data by into different curves. Must be a column name in @data}
+\item{predictor}{Variable of interest to separate data by into different curves. Must be a column name in @data}
 
 \item{time.unit}{Specify how the time units are displayed on KM graph. Defaults to days}
 
