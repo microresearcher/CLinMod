@@ -6,7 +6,7 @@
 #' @param response Name of column, in string format, containing boolean response values (as either 0/1 or T/F)
 #' @param predictors Name of column, in string format, for the variable of interest. Must also be 0/1 or T/F values or continuous values
 #' @param family Used in the glm function: "Type of error distribution and link function to be used in the model. For glm this can be a character string naming a family function, a family function or the result of a call to a family function. For glm.fit only the third option is supported. (See family for details of family functions.)". Defaults to binomial.
-#' @param subgroup_by (Optional) Vector of variable names for subgroup analyses. Must be column names in data that are not in predictor_formula.
+#' @param subgroup_by (Optional) Vector of variable names for subgroup analyses. Must be column names in data that are not in predictors
 #' @param n_breaks Number of axis ticks to create on the x-axis of the plot. Passed onto internal plotForestPlot function.
 #' @param var.rename Named vector to rename predictors with more appropriate names for a visual, if any need to be changed. For example, a column called "responded_to_treatment" could be renamed by inputing "c('responded_to_treatment'='Responded'). Passed onto internal plotForestPlot function.
 #' @param title Title of the generated figure. Passed onto internal plotForestPlot function.
@@ -74,8 +74,8 @@ plotORs <- function(model = NULL,
 #' @param data Data table in data.frame format.
 #' @param event.time Name, in string format, of column in data containing time-to-event values.
 #' @param event.status Name, in string format, of column in data containing event status values (as either 0/1 or T/F).
-#' @param predictor_formula Arithmetic combination of desired predictor predictors in string format. Must be column names in data.
-#' @param subgroup_by (Optional) Vector of variable names for subgroup analyses. Must be column names in data that are not in predictor_formula.
+#' @param predictors Either a vector of 1 or more predictor variables or an arithmetic combination of predictor variables in character format
+#' @param subgroup_by (Optional) Vector of variable names for subgroup analyses. Must be column names in data that are not in predictors
 #' @param n_breaks Number of axis ticks to create on the x-axis of the plot. Passed onto internal plotForestPlot function.
 #' @param var.rename Named vector to rename predictors with more appropriate names for a visual, if any need to be changed. For example, a column called "responded_to_treatment" could be renamed by inputing "c('responded_to_treatment'='Responded'). Passed onto internal plotForestPlot function.
 #' @param title Title of the generated figure. Passed onto internal plotForestPlot function.
@@ -87,13 +87,13 @@ plotORs <- function(model = NULL,
 #' @return Returns a forest plot of the hazard ratios for the predictors in the @model.
 #' @export
 #'
-plotHRs <- function(data, event.time, event.status, predictor_formula, subgroup_by = NULL,
+plotHRs <- function(data, event.time, event.status, predictors, subgroup_by = NULL,
                     n_breaks = 7, var.rename = c(' ' = ' '), title = NULL, var_label_position = 'top',
                     annotateStats = T, annotatePVal = F, annotateEffect = F) {
   res <- getHRs(data = data,
                 event.time = event.time,
                 event.status = event.status,
-                predictor_formula = predictor_formula,
+                predictors = predictors,
                 subgroup_by = subgroup_by,
                 repeatVar = T)$Statistics
 

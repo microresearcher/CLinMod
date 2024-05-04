@@ -3,7 +3,7 @@
 #' @param data Data table in data.frame format
 #' @param event.time Name, in string format, of column in data containing time-to-event values
 #' @param event.status Name, in string format, of column in data containing event status values (as either 0/1 or T/F)
-#' @param predictor_formula Arithmetic combination of desired predictor variables in string format. Must use column names in data
+#' @param predictors Either a vector of 1 or more predictor variables or an arithmetic combination of predictor variables in character format
 #' @param subgroup_by (Optional) Vector of variable names for subgroup analyses. Must be column names in data that are not in predictor_formula.
 #' @param repeatVar Whether to repeat the variable name on the left-most column next to each category for categorical variables. Defaults to False
 #' @param verbose Whether to print extra information during processing and analysis. Defaults to True.
@@ -11,7 +11,8 @@
 #' @return Returns a dataframe of Hazard Ratios and associated confidence intervals and p-values
 #' @export
 #'
-getHRs <- function(data, event.time, event.status, predictor_formula,
+getHRs <- function(data, event.time, event.status,
+                   predictors,
                    subgroup_by = NULL,
                    repeatVar = F,
                    verbose = T) {
@@ -19,15 +20,23 @@ getHRs <- function(data, event.time, event.status, predictor_formula,
   event.status <- intersect(event.status, colnames(data))
   subgroups <- intersect(subgroup_by, colnames(data))
 
-  if(any(!length(event.time), !length(event.status))) stop(paste0('"', event.time,
-                                                                  '" and "', event.status,
-                                                                  '" must be column names in data'))
+  if(!all(length(event.time), length(event.status))) stop(paste0('"', event.time,
+                                                                 '" and "', event.status,
+                                                                 '" must be column names in data'))
 
-  vars <- getFormulaVars(predictor_formula)
-  na_terms <- vars[!(vars %in% colnames(data))]
+  # If length of predictors is greater than 1, then it should be a vector/list of predictors
+  # If length of predictors is 1, then it should be either a formula or a single variable
+  if(length(predictors) > 1) vars <- predictors
+  else vars <- getFormulaVars(predictors)
+
+  # If any predictors specified are not found in the data then function will error out
+  na_terms <- setdiff(vars, colnames(data))
   if(length(na_terms)) stop(paste('The following terms are not variables (column names) in the data:\n '),
                             paste0(na_terms, sep = ', '))
   else if(length(intersect(subgroups, vars))) stop('Stratification variable cannot be in the predictor formula.')
+
+  # Paste predictors into a formula string. If a formula was already provided, this does not change it
+  predictor_formula <- paste0(predictors, collapse = ' + ')
 
   data[[event.time]] <- as.numeric(data[[event.time]])
   data[[event.status]] <- as.numeric(data[[event.status]])
@@ -46,7 +55,10 @@ getHRs <- function(data, event.time, event.status, predictor_formula,
       # }
       if(verbose) print(subgrps.n)
 
-      grouped <- data[complete.cases(data[c(event.time, event.status, vars, subgrp)]),] %>%
+      grouped <- data[complete.cases(data[c(event.time,
+                                            event.status,
+                                            vars,
+                                            subgrp)]),] %>%
         dplyr::group_by(.data[[subgrp]])
 
       res.grouped <- grouped %>%
