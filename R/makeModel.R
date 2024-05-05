@@ -44,7 +44,8 @@ makeModel <- function(data, response, time = NULL, predictors = c(),
 
   if(length(time)) {
     message('Creating a coxph model:')
-    surv <- Surv(data.reduced[[time]], data.reduced[[response]])
+    surv <- Surv(as.numeric(data.reduced[[time]]),
+                 as.numeric(data.reduced[[response]]))
 
     model <- coxph(formula(paste('surv ~',
                                  paste(predictors, collapse = '+'))),

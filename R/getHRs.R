@@ -129,7 +129,8 @@ getHRs.base <- function(data,
                         event.status,
                         predictor_formula,
                         repeatVar = F) {
-  surv <- survival::Surv(data[[event.time]], data[[event.status]])
+  surv <- survival::Surv(as.numeric(data[[event.time]]),
+                         as.numeric(data[[event.status]]))
 
   f <- formula(paste('surv ~', predictor_formula))
 

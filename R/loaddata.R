@@ -84,8 +84,12 @@ clean_data <- function(data) {
   # Any remaining unclassed columns will become factors with the other categorical variables
   categorical <- names(unclassed)
 
-  data.classed[c(continuous, continuous.forced)] <- lapply(data.classed[c(continuous, continuous.forced)], as.numeric)
-  data.classed[categorical] <- lapply(data.classed[categorical], as.factor)
+  data.classed[c(continuous, continuous.forced)] <- lapply(data.classed[c(continuous, continuous.forced)],
+                                                           as.numeric)
+  data.classed[categorical] <- lapply(data.classed[categorical],
+                                      function(c) factor(c, exclude = c(NA, '', 'NA', 'N/A')))
+
+  colnames(data.classed) <- renameVars(colnames(data.classed), auto = T)
 
   return(data.classed)
 }
@@ -116,4 +120,43 @@ refactor <- function(data, variables) {
   }
 
   return(data)
+}
+
+#' Rename Variables
+#'
+#' @param variables Vector of variables to rename.
+#' @param auto Whether to automatically rename variables by replacing invalid characters only. Defaults to False.
+#'
+#' @return Named list of new variable names with names being the old variable names
+#' @export
+#'
+renameVars <- function(variables, auto = F) {
+  invalid_chars <- c(' '='_',
+                     ':'='_',
+                     '/'='_', '\''='',
+                     '\\['='', '\\]'='',
+                     '\\('='_', '\\)'='',
+                     '"'='', ','='',
+                     '\\$'='', '@'='', '#'='', '%'='', '\\^'='', '\\*'='',
+                     '&'='_and_', '\\?'='',
+                     '='='_equals_', '\\+'='_plus_', '\\-'='_minus_')
+  if(!auto) {
+    varnames.new <- sapply(variables,
+                           function(v) readline(paste0('Please enter a new name for ', v, ': ')))
+  } else varnames.new <- variables
+
+  varnames.new <- stringr::str_replace_all(varnames.new, invalid_chars)
+
+  dupes <- duplicated(varnames.new)
+
+  if(any(dupes)) {
+    warning(paste('Duplicates were found for the following names:\n  ',
+                  paste(unique(varnames.new[dupes]), collapse = '\n  ')))
+    varnames.new <- make.unique(varnames.new)
+
+    message('The duplicates have been renamed as follows:\n  ',
+            paste(varnames.new[dupes], collapse = '\n  '))
+  }
+
+  return(varnames.new)
 }

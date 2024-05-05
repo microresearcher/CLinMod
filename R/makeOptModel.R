@@ -61,7 +61,8 @@ makeOptModel <- function(data, response, time = NULL, predictors = c(),
   # Reduce data to only the rows with complete cases when all possible variables are included (except those in "exclude")
   data.reduced <- na.omit(data[c(time, response, setdiff(predictors, exclude))])
   # Create "surv" object with the reduced data if there was a valid "time" value
-  if(length(time)) surv <- Surv(data.reduced[[time]], data.reduced[[response]])
+  if(length(time)) surv <- Surv(as.numeric(data.reduced[[time]]),
+                                as.numeric(data.reduced[[response]]))
 
   direction <- match.arg(direction, c('both','prune','build'))
   models.opt <- list()
