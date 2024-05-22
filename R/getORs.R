@@ -31,6 +31,11 @@ getORs <- function(model = NULL,
 
     if(length(intersect(subgroups, vars))) stop('Stratification variable cannot be in the predictor formula.')
 
+    subgroups.isfactor <- sapply(subgroups, function(s) is.factor(data[[s]]))
+    if(any(!subgroups.isfactor)) warning('The following variables are continuous and cannot be used as subgroups:\n   ',
+                                         paste0(names(subgroups.isfactor[!subgroups.isfactor]), collapse = '\n   '))
+    subgroups <- intersect(subgroups, names(subgroups.isfactor[subgroups.isfactor]))
+
     if(!length(subgroups)) {
       cat('\nGenerating model of', response,
           'using', paste0(paste(vars, collapse = ', '),'.'),
@@ -48,15 +53,14 @@ getORs <- function(model = NULL,
   if(length(subgroups)) {
     # Univariate Analysis with Subgroups
     res.subgrps <- lapply(subgroups, function(subgrp) {
-      subgrps.n <- data[c(vars, subgrp)] %>%
+      # Create a contingency table using subgroup and only the categorical variables
+      vars.isfactor <- vars[sapply(vars, function(v) is.factor(data[[v]]))]
+      subgrps.n <- data[c(vars.isfactor, subgrp)] %>%
         dplyr::mutate('count' = 1) %>%
-        tidyr::pivot_wider(names_from = dplyr::all_of(vars),
+        tidyr::pivot_wider(names_from = dplyr::all_of(vars.isfactor),
                            values_from = 'count',
-                           values_fn = sum, values_fill = 0)
-
-      # if(verbose) for(i in 1:sum(!is.na(subgrps.n[[subgrp]]))) {
-      #   cat()
-      # }
+                           values_fn = sum, values_fill = 0,
+                           names_vary = 'fastest')
 
       grouped <- data[complete.cases(data[c(response, vars, subgrp)]),] %>%
         dplyr::group_by(.data[[subgrp]])
