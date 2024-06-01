@@ -40,8 +40,22 @@ makeOptModel <- function(data, response, time = NULL, predictors = c(),
     if(length(response) > 1) stop('"response" must be a single column name in the data for survival data.')
     # Get all values in "response" that are not 0 or 1, or missing
     na_response <- setdiff(data[[response]], c(0, 1, NA))
-    if(length(na_response)) stop('"response" values must be 0 or 1 for "event" and "censored", respectively.\n  The following additional values were found and these samples/cases should be removed from the data:\n   ',
-                                paste(na_response, collapse = '\n   '))
+
+    # If event factor is not made of only 0, 1, and NA, then allow user to change it into such a factor
+    if(length(na_response)) {
+      message('"',response,'"',
+              ' values must be 0 or 1 for "event" and "censored", respectively.\n The following additional values were found and these samples/cases:\n   ',
+              paste(na_response, collapse = '\n   '))
+      cat('\n')
+      response.event <- select.list(setdiff(data[[response]], NA),
+                                    title = 'Please select the value corresponding to events (e.g. death)')
+      response.censored <- select.list(setdiff(data[[response]], NA),
+                                       title = 'Please select the value corresponding to censored data (e.g. alive)')
+
+      data[[response]] <- factor(data[[response]],
+                                 levels = c(response.censored, response.event),
+                                 labels = c(0, 1))
+    }
   }
 
   # If at least 2 valid predictors were not specified, ask user to choose from dataframe columns
@@ -59,7 +73,22 @@ makeOptModel <- function(data, response, time = NULL, predictors = c(),
                                               paste(setdiff(include, predictors), collapse = '\n  '),'\n')
 
   # Reduce data to only the rows with complete cases when all possible variables are included (except those in "exclude")
-  data.reduced <- na.omit(data[c(time, response, setdiff(predictors, exclude))])
+  data.selected <- data[c(time, response, setdiff(predictors, exclude))]
+
+  data.reduced <- na.omit(data.selected)
+  na_counts <- sapply(data.selected, function(x) sum(is.na(x)))
+  na_counts <- na_counts[na_counts > 0]
+  if(select.list(c('Yes', 'No'),
+                 title = paste(nrow(data.reduced),
+                               'samples remaining out of',
+                               nrow(data.selected),
+                               'after removing samples with missing values. Proceed?')) == 'No') {
+    stop('Please choose fewer predictor variables to try to build a model from. Suggestions below:\n    ',
+         paste(paste(names(na_counts[order(na_counts, decreasing = T)])[1:min(10, length(na_counts))],
+                     na_counts[order(na_counts, decreasing = T)][1:min(10, length(na_counts))],
+                     sep = ': '),
+               collapse = '\n    '))
+  }
   # Create "surv" object with the reduced data if there was a valid "time" value
   if(length(time)) surv <- Surv(as.numeric(data.reduced[[time]]),
                                 as.numeric(data.reduced[[response]]))
@@ -212,6 +241,7 @@ optModel.AIC <- function(model, predictors, keep = c(),
 
   improving <- T
   overfitted <- F # Only evaluate for overfitting risk if limitDim is TRUE (evaluated in loop)
+  last_change <- ''
   while(improving | overfitted) {
     # If trace is TRUE, then this helps make output easier to read.
     if(trace) cat('<> Next Step <>\n')
@@ -229,9 +259,9 @@ optModel.AIC <- function(model, predictors, keep = c(),
     if(!improving) AICs <- AICs[startsWith(names(AICs),'-')]
     # Reorder the AICs from least to greatest
     AICs <- AICs[order(AICs, decreasing = F)]
-    # Named value of lowest AIC even if it corresponds to removing a variable in the "keep" list
+    # Named value of lowest AIC even if it corresponds to a variable in the "keep" list
     AIC.min <- AICs[1]
-    # Named value of lowest AIC that does not correspond to removing a variable in the "keep" list
+    # Named value of lowest AIC that does not correspond to a variable in the "keep" list
     AIC.next <- AICs[!(names(AICs) %in% paste('-',keep))][1]
 
     # If lowest AIC would result from removing a variable in "keep", then let the user know and use the next best that is not in "keep"
@@ -242,6 +272,7 @@ optModel.AIC <- function(model, predictors, keep = c(),
     if(trace) print(data.frame(AICs))
 
     if(names(AIC.next) == '<current>') {
+      # If AIC of candidate model is more than the current AIC, let user know and focus on dimensionality reduction if desired otherwise exit
       cat('<> Lowest AIC of',AICs[which(names(AICs)=='<current>')+1],
           'with',paste0('"',names(AICs[which(names(AICs)=='<current>')+1]),'"'),
           'is still greater than the current',paste0(round(AICs['<current>'], 4),
@@ -250,7 +281,19 @@ optModel.AIC <- function(model, predictors, keep = c(),
                       paste(model$formula[2]),paste(model$formula[1]),paste(model$formula[3]),
                       '\n  AIC:', extractAIC(model)[2],'\n')
       improving <- F
+    } else if(improving & AIC.next == extractAIC(model)[2]) {
+      # If AIC of candidate model is the same as current AIC, let user know and focus on dimensionality reduction if desired otherwise exit
+      cat('<> Lowest AIC of',AIC.next,
+          'with',paste0('"',names(AIC.next),'"'),
+          'is the same as the current',paste0(round(AICs['<current>'], 4),
+                                                     '.\n Thus, optimization has reached a local minimum.\n'))
+      if(verbose) cat('Current Model:\n ',
+                      paste(model$formula[2]),paste(model$formula[1]),paste(model$formula[3]),
+                      '\n  AIC:', extractAIC(model)[2],'\n')
+
+      improving <- F
     } else {
+      # If AIC of candidate model is less than current AIC, generate a new model
       cat(paste0('<> "',names(AIC.next),'" yields a lower AIC than the current model.'))
       model <- updateModel(model, formula(paste('.~.',names(AIC.next))))
       # Remove the predictor from the list it was in and put it in the other list
@@ -266,6 +309,9 @@ optModel.AIC <- function(model, predictors, keep = c(),
                                    gsub('\\- ','\\+ ',
                                         names(AIC.next)[substr(names(AIC.next), 1, 1)=='-'])))
       }
+      # # Save this predictor name to compare to in the next round.
+      # #  If the same predictor comes up in the next round, then we are at a local minimum and funciton will exit.
+      # last_change <- gsub('\\+ ', '', names(AIC.next))
       cat('\nNew Model:\n',
           paste(model$formula[2]),paste(model$formula[1]),paste(model$formula[3]),
           '\n  AIC:', extractAIC(model)[2],'\n')

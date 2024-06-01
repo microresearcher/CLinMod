@@ -102,6 +102,11 @@ plotHRs <- function(data, event.time, event.status, predictors, subgroup_by = NU
 
   colnames(res)[(which(colnames(res)=='Hazard Ratio'))] <- 'HR'
 
+  # Remove any levels with infinite confidence interval values
+  inf_levels <- res[is.infinite(res$`CI lower`) | is.infinite(res$`CI upper`),]$Level
+  if(length(inf_levels)) message('The following levels were not plotted due to undefined confidence intervals:\n  ',
+                                 paste(inf_levels, collapse = '\n  '))
+
   if(length(res$Subvariable)) {
     res$Sublevel[res$Sublevel == res$Subvariable] <- ''
     res$Subvariable <- stringr::str_replace_all(paste0(stringr::str_replace_all(res$Subvariable, var.rename),

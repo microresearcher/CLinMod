@@ -28,8 +28,22 @@ makeModel <- function(data, response, time = NULL, predictors = c(),
     if(length(response) > 1) stop('"response" must be a single column name in the data for survival data.')
     # Get all values in "response" that are not 0, 1, or missing
     na_response <- setdiff(data[[response]], c(0, 1, NA))
-    if(length(na_response)) stop('"response" values must be 0 or 1 for "event" and "censored", respectively.\n The following additional values were found and these samples/cases should be removed from "data":\n  ',
-                                 paste(na_response, collapse = '\n  '))
+
+    # If event factor is not made of only 0, 1, and NA, then allow user to change it into such a factor
+    if(length(na_response)) {
+      message('"',response,'"',
+              ' values must be 0 or 1 for "event" and "censored", respectively.\n The following additional values were found and these samples/cases:\n   ',
+              paste(na_response, collapse = '\n   '))
+      cat('\n')
+      response.event <- select.list(setdiff(data[[response]], NA),
+                                    title = 'Please select the value corresponding to events (e.g. death)')
+      response.censored <- select.list(setdiff(data[[response]], NA),
+                                       title = 'Please select the value corresponding to censored data (e.g. alive)')
+
+      data[[response]] <- factor(data[[response]],
+                                 levels = c(response.censored, response.event),
+                                 labels = c(0, 1))
+    }
   }
 
   # If at least 1 valid predictor was not specified, ask user to choose from dataframe columns

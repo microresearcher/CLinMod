@@ -47,6 +47,8 @@ getORs <- function(model = NULL,
                                  paste(vars, collapse = '+'))),
                    data = data.reduced,
                    family = family)
+
+      cat('Resulting model has ', nobs(model), ' samples.\n')
     }
   } else stop('Must provide either a model or alternatively data, variable, and response')
 

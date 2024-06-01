@@ -56,12 +56,13 @@ table1 <- function(data, characteristics = c(), grouping,
     counts <- data[c(cat, stratifier)] %>%
       dplyr::mutate('count' = 1) %>%
       tidyr::pivot_wider(names_from = tidyselect::all_of(stratifier),
+                         names_prefix = paste0(stratifier,'|'),
                          values_from = 'count',
                          values_fn = sum, values_fill = 0) %>%
       dplyr::arrange(.data[[cat]])
 
-    props <- cbind(counts[1],
-                   counts[2:ncol(counts)] / rowSums(counts[2:ncol(counts)]))
+    props <- cbind(counts[1], as.data.frame(sapply(counts[2:ncol(counts)],
+                                                   function(x) x / sum(x))))
 
     temp <- cbind(counts[1],
                   as.data.frame(matrix(paste0(as.matrix(counts[2:ncol(counts)]),
@@ -75,7 +76,7 @@ table1 <- function(data, characteristics = c(), grouping,
     temp$Group <- as.character(temp$Group)
 
     tab <- cbind('Variable' = c(cat, rep('', nrow(temp))),
-                 rbind(c('', '', ''),
+                 rbind(rep('', ncol(temp)),
                        temp))
 
     return(tab)
@@ -87,6 +88,7 @@ table1 <- function(data, characteristics = c(), grouping,
   tabs.cont <- dplyr::bind_rows(lapply(continuous, function(cat) {
     data[c(cat, stratifier)] %>%
       tidyr::pivot_wider(names_from = tidyselect::all_of(stratifier),
+                         names_prefix = paste0(stratifier,'|'),
                          values_from = all_of(cat),
                          values_fn = function(x) {
                            paste0(signif(mean(x, na.rm = T), digits = signif),
