@@ -4,6 +4,8 @@
 #' @param data Can be either a dataframe or a model containing a "model" attribute.
 #' @param characteristics List of characteristics to be summarized in the table. Should be column names in data.
 #' @param grouping Column name in data that specifies a factor to group summarizing statistics.
+#' @param props_within_group Whether to calculate proportions of categorical variables within each group or across all groups.
+#'  Defaults to across all groups.
 #' @param formula (Optional) Formula specifying which variables in data to show and any stratification if desired.
 #' @param exclude (Optional) Variables in data that are to be excluded, if any.
 #' @param signif Number of significant digits to report for statistical values. Defaults to 3.
@@ -12,6 +14,7 @@
 #' @export
 #'
 table1 <- function(data, characteristics = c(), grouping,
+                   props_within_group = F,
                    formula = NULL, exclude = c(),
                    signif = 3) {
   # Check if data is a matrix or dataframe
@@ -61,8 +64,10 @@ table1 <- function(data, characteristics = c(), grouping,
                          values_fn = sum, values_fill = 0) %>%
       dplyr::arrange(.data[[cat]])
 
-    props <- cbind(counts[1], as.data.frame(sapply(counts[2:ncol(counts)],
-                                                   function(x) x / sum(x))))
+    if(props_within_group) props <- cbind(counts[1], as.data.frame(sapply(counts[2:ncol(counts)],
+                                                                          function(x) x / sum(x))))
+    else props <- cbind(counts[1],
+                        counts[2:ncol(counts)] / rowSums(counts[2:ncol(counts)]))
 
     temp <- cbind(counts[1],
                   as.data.frame(matrix(paste0(as.matrix(counts[2:ncol(counts)]),

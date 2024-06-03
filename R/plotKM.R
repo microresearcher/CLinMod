@@ -7,6 +7,7 @@
 #' @param time.unit Specify how the time units are displayed on KM graph. Defaults to days
 #' @param convert.time (Optional) Specify an alternate time unit to display on the KM plot
 #' @param event.name (Optional) Name to display on y-axis title of KM plot. Will display as "@event.name Probability". Defaults to @event.status
+#' @param var.rename Named vector to rename predictors with more appropriate names for a visual, if any need to be changed. For example, a column called "responded_to_treatment" could be renamed by inputing "c('responded_to_treatment'='Responded'). Passed onto internal plotForestPlot function.
 #' @param showCI Whether or not to show confidence interval ribbons on KM plot. Defaults to True
 #' @param showPVal Whether or not to show p-value on KM plot. Defaults to False
 #' @param showRiskTab Whether or not to show risk table below KM plot. Defaults to False
@@ -24,6 +25,7 @@ plotKM <- function(data,
                    time.unit = c('Days','Weeks','Months','Years'),
                    convert.time = c('Days','Weeks','Months','Years'),
                    event.name,
+                   var.rename = c(' ' = ' '),
                    showCI = T, showPVal = F, showRiskTab = F,
                    offerSave = T,
                    width = 8, height = 4) {
@@ -51,6 +53,9 @@ plotKM <- function(data,
 
   data[[event.status]] <- as.numeric(data[[event.status]])
 
+  var.rename <- var.rename[intersect(names(var.rename), levels(data[[predictor]]))]
+  if(length(var.rename)) data[[predictor]] <- plyr::revalue(data[[predictor]], var.rename)
+
   surv <- survival::Surv(data[[event.time]], data[[event.status]])
   survfit <- ggsurvfit::survfit2(formula = f, data = data)
 
@@ -67,7 +72,14 @@ plotKM <- function(data,
 
   if(showCI) p <- p+ggsurvfit::add_confidence_interval()
   if(showPVal) p <- p+ggsurvfit::add_pvalue(size = 10)
-  if(showRiskTab) p <- p+ggsurvfit::add_risktable()
+  if(showRiskTab) {
+    p <- p+ggsurvfit::add_risktable(size = 5,
+                                    theme = ggsurvfit::theme_risktable_default(axis.text.y.size = 15,
+                                                                               plot.title.size = 15))
+    height <- height * 1.4
+  }
+
+  width <- width * 1.1
 
   if(offerSave) savePlot(p, width = width, height = height)
 
