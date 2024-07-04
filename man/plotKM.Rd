@@ -12,6 +12,7 @@ plotKM(
   time.unit = c("Days", "Weeks", "Months", "Years"),
   convert.time = c("Days", "Weeks", "Months", "Years"),
   event.name,
+  var.rename = c(` ` = " "),
   showCI = T,
   showPVal = F,
   showRiskTab = F,
@@ -34,6 +35,8 @@ plotKM(
 \item{convert.time}{(Optional) Specify an alternate time unit to display on the KM plot}
 
 \item{event.name}{(Optional) Name to display on y-axis title of KM plot. Will display as "@event.name Probability". Defaults to @event.status}
+
+\item{var.rename}{Named vector to rename predictors with more appropriate names for a visual, if any need to be changed. For example, a column called "responded_to_treatment" could be renamed by inputing "c('responded_to_treatment'='Responded'). Passed onto internal plotForestPlot function.}
 
 \item{showCI}{Whether or not to show confidence interval ribbons on KM plot. Defaults to True}
 

@@ -9,6 +9,7 @@
 #' @param alpha Significance level. Defaults to 0.05
 #' @param longer Whether to format the table into a longer format or nested format. Defaults to a nested format ("FALSE").
 #' @param repeatVar Whether to repeat the variable name on the left-most column next to each category for categorical predictors. Defaults to "FALSE".
+#' @param keepUndefined Whether to keep undefined values in the output table (usually the case for groups that are too small). Defaults to False.
 #' @param verbose Whether to print extra information during processing and analysis. Defaults to True.
 #'
 #' @return Returns table of ORs
@@ -19,6 +20,7 @@ getORs <- function(model = NULL,
                    subgroup_by = NULL,
                    alpha = 0.05,
                    longer = F, repeatVar = F,
+                   keepUndefined = F,
                    verbose = T) {
   if(length(model)) {
     cat('\nUsing provided model to calculate ORs.\n\n')
@@ -82,7 +84,8 @@ getORs <- function(model = NULL,
       res.sub <- dplyr::bind_rows(lapply(names(res.grouped)[!is.na(names(res.grouped))],
                                          function(grp) cbind(Lvl = grp, Var = subgrp, res.grouped[[grp]])))
 
-      res.sub <- res.sub[res.sub$Variable != '(Intercept)' & complete.cases(res.sub),]
+      # Remove rows corresponding to intercept and the baseline
+      res.sub <- res.sub[res.sub$Variable != '(Intercept)' & !is.na(res.sub$`Odds Ratio`),]
 
       inf_grps <- apply(res.sub[c('Odds Ratio', 'CI lower', 'CI upper', 'p-value')],
                         MARGIN = 1,
@@ -99,7 +102,7 @@ getORs <- function(model = NULL,
                        collapse = '\n   '))
       }
 
-      res.sub <- res.sub[!inf_grps,]
+      if(!keepUndefined) res.sub <- res.sub[!inf_grps & complete.cases(res.sub),]
 
       colnames(res.sub)[colnames(res.sub) == 'Level'] <- 'Sublevel'
       colnames(res.sub)[colnames(res.sub) == 'Lvl'] <- 'Level'

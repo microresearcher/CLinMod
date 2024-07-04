@@ -60,23 +60,27 @@ plotKM <- function(data,
   survfit <- ggsurvfit::survfit2(formula = f, data = data)
 
   p <- ggsurvfit::ggsurvfit(survfit, size = 1, theme = ggpubr::theme_pubr())+
-    ggsurvfit::add_censor_mark(stroke=1)+
+    ggsurvfit::add_censor_mark(stroke = 1)+
     ggplot2::labs(x=paste0('Time (', time.unit,')'),
-                  y=paste(event.name,'Probability'))+
-    ggplot2::theme(axis.title = ggplot2::element_text(size=20),
-                   axis.text = ggplot2::element_text(size=20),
+                  y=paste(event.name,'Probability (%)'))+
+    ggplot2::theme(axis.title = ggplot2::element_text(size = 20),
+                   axis.text = ggplot2::element_text(size = 20),
                    legend.title = ggplot2::element_blank(),
-                   legend.text = ggplot2::element_text(size=18),
+                   legend.text = ggplot2::element_text(size = 18),
                    legend.key.size = ggplot2::unit(1,'cm'))+
-    ggplot2::scale_y_continuous(expand = c(0, 0), limits = c(0, NA))
+    ggplot2::scale_x_continuous(expand = ggplot2::expansion(mult = c(0, 0.1)))+
+    ggplot2::scale_y_continuous(expand = c(0, 0), limits = c(0, 1.01),
+                                labels = function(x) paste(x * 100))
 
   if(showCI) p <- p+ggsurvfit::add_confidence_interval()
   if(showPVal) p <- p+ggsurvfit::add_pvalue(size = 10)
   if(showRiskTab) {
-    p <- p+ggsurvfit::add_risktable(size = 5,
+    p <- p+ggsurvfit::add_risktable(risktable_stats = "{n.risk} ({cum.event})",
+                                    size = 5,
                                     theme = ggsurvfit::theme_risktable_default(axis.text.y.size = 15,
-                                                                               plot.title.size = 15))
-    height <- height * 1.4
+                                                                               plot.title.size = 15))+
+      ggplot2::scale_x_continuous(expand = ggplot2::expansion(mult = c(0.05, 0.12)))
+    height <- height * 1.6
   }
 
   width <- width * 1.1

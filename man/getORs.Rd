@@ -14,6 +14,7 @@ getORs(
   alpha = 0.05,
   longer = F,
   repeatVar = F,
+  keepUndefined = F,
   verbose = T
 )
 }
@@ -35,6 +36,8 @@ getORs(
 \item{longer}{Whether to format the table into a longer format or nested format. Defaults to a nested format ("FALSE").}
 
 \item{repeatVar}{Whether to repeat the variable name on the left-most column next to each category for categorical predictors. Defaults to "FALSE".}
+
+\item{keepUndefined}{Whether to keep undefined values in the output table (usually the case for groups that are too small). Defaults to False.}
 
 \item{verbose}{Whether to print extra information during processing and analysis. Defaults to True.}
 }
