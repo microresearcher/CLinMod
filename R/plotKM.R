@@ -79,7 +79,9 @@ plotKM <- function(data,
                                     size = 5,
                                     theme = ggsurvfit::theme_risktable_default(axis.text.y.size = 15,
                                                                                plot.title.size = 15))+
-      ggplot2::scale_x_continuous(expand = ggplot2::expansion(mult = c(0.05, 0.12)))
+      ggplot2::scale_x_continuous(expand = ggplot2::expansion(mult = c(0.05, 0.12)))+
+      ggplot2::geom_vline(xintercept = 0, linetype = 'dashed')
+
     height <- height * 1.6
   }
 
