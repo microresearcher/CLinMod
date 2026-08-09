@@ -147,7 +147,7 @@ cleanData <- function(data) {
 #'    If not specified, will select all categorical variables in the data.
 #' @param exclude (Optional) Names of variables to exclude.
 #'    If this and "variables" are not specified, will select all categorical variables in the data.
-#' @param all Whether or not to relabel all variables without asking before each one. Defaults to False.
+#' @param all Whether or not to refactor all variables without asking before each one. Defaults to False.
 #'
 #' @return Dataframe with cleaned up factor variables
 #' @export
@@ -171,8 +171,8 @@ cleanFactors <- function(data, variables = NULL, exclude = NULL, all = F) {
     cat('\n  <> Unique values:', paste(unique(data[[v]]), collapse = ', '))
     cat('\n  <> Levels:', paste(levels(data[[v]]), collapse = ', '))
 
-    labels.new <- relabel(data[[v]])
-    data[[v]] <- labels.new$factor
+    labels.new <- refactor(data[[v]])
+    data[[v]] <- labels.new$variable
     data[[paste0(v,'_comments')]] <- labels.new$comments
   }
 
@@ -190,88 +190,125 @@ cleanFactors <- function(data, variables = NULL, exclude = NULL, all = F) {
   return(data)
 }
 
-#' Add or change labels of levels of a factor
+#' Add, remove, or change levels of a factor
 #'
-#' @param factor A factor to change the labels of
+#' @param variable A factor to change the levels of
 #'
-#' @return Factor with relabeled levels
+#' @return Factor with refactored levels
 #' @export
 #'
-relabel <- function(factor) {
-  if(!is.factor(factor)) {
-    warning(factor, ' is not a factor')
-    next
-  }
+refactor <- function(variable) {
+  if(!is.factor(variable)) stop(variable, ' is not a factor')
   # Unfactor the factor. New factor will be made a factor at the end.
-  factor.new <- as.vector(factor)
+  factor.new <- as.vector(variable)
 
   values.new <- sapply(unique(factor.new)[order(unique(factor.new))],
                        function(u) readline(paste('', u, 'should be replaced by: ')))
+
   # Replace any "NA" or "N/A" responses with actual NA
   values.new[toupper(values.new) %in% c('NA', 'N/A')] <- NA
+  # Identify any values that are newly assigned as NA
+  newNAs <- values.new[is.na(values.new) & !is.na(names(values.new))]
   # Identify all the values with duplicate assigned labels
   dupes <- values.new[values.new %in% unique(values.new[duplicated(values.new)])]
-  if(length(dupes)) {
-    warning(' Duplicate labels were given for different values. These values will be overwritten to reflect new labels.')
+
+  # If there are any dupes or any new NAs assigned, generate a comments column that will store the original values
+  if(!length(c(dupes, newNAs))) factor_comments <- NULL
+  else {
+    warning(' Duplicate factor levels and/or NA were given for different values. These values will be overwritten to reflect new levels.')
+    replacements <- c(newNAs, dupes)[unique(names(c(newNAs, dupes)))]
     # Create a new list of the original values that are being assigned to the same label
-    factor_comments <- sapply(factor, function(v) ifelse(v %in% names(dupes),
-                                                         dupes[names(dupes) == v],
-                                                         ''))
+    factor_comments <- sapply(variable, function(v) ifelse(v %in% names(replacements),
+                                                           as.character(v), ''))
     names(factor_comments) <- as.vector(factor)
 
     # Overwrite values
-    factor.new[factor.new %in% names(dupes)] <- sapply(factor.new[factor.new %in% names(dupes)],
-                                                       function(v) dupes[names(dupes) %in% v])
+    factor.new[factor.new %in% names(replacements)] <-
+      sapply(factor.new[factor.new %in% names(replacements)],
+             function(v) replacements[names(replacements) %in% v])
 
-    # Rewrite values.new to remove the duplicated values now that they have been overwritten
+    # Rewrite values.new to remove the duplicated and NA values now that they have been overwritten
     values.new <- values.new[!duplicated(values.new) & !is.na(values.new)]
-  } else factor_comments <- NULL
+  }
 
   factor.new <- factor(factor.new,
                        labels = setdiff(unique(values.new), NA),
                        exclude = c(NA, '', 'NA', 'N/A'))
 
-  return(list(factor = factor.new, comments = factor_comments))
+  return(list(variable = factor.new,
+              comments = factor_comments))
 }
 
-#' Change the values of levels of factor variables in data
+#' Change the values (not just the labels) of levels of factor variables in data
 #'
-#' @param data Data
-#' @param variables Variables to refactor
+#' @param variable Variable to relabel
 #'
-#' @return Dataframe with refactored variables
+#' @return Relabeled variable
 #' @export
 #'
-refactor <- function(data, variables) {
-  variables <- intersect(variables, colnames(data))
+relabel <- function(variable) {
+    levels.new <-
+      sapply(levels(variable),
+             function(l) readline(paste(' ', l,
+                                        'should be replaced by: ')))
 
-  for(v in variables) {
-    v.old <- data[[v]]
-    if(!is.factor(v.old)) {
-      warning(v.old, ' is not a factor')
-      next
-    }
-    cat(paste0('For "',v,'"'))
-    # if(select.list(c('Yes','No'),
-    #                title = paste0('Add factor levels?')) == 'YES') {
-    #   # levels.current <- levels(data[[v]])
-    #   # levels.keep <- setdiff(levels.current, select.list(levels.current,
-    #   #                                                    title = 'Select which levels to remove'))
-    #   # data[[v]] <- factor(data[[v]], levels = levels.new)
-    # }
-
-    # if(select.list(c('Yes','No'),
-    #                title = paste0('Delete any factor levels?')) == 'YES') {
-    #   # levels.current <- levels(data[[v]])
-    #   # levels.keep <- setdiff(levels.current, select.list(levels.current,
-    #   #                                                    title = 'Select which levels to remove'))
-    #   # data[[v]] <- factor(data[[v]], levels = levels.new)
-    # }
-    levels.new <- sapply(levels(v.old), function(l) readline(paste(' ', l, 'should be replaced by: ')))
-    v.new <- factor(unname(sapply(v.old, function(x) levels.new[x])),
+    variable.new <- factor(unname(sapply(variable, function(x) levels.new[x])),
                     levels = unname(levels.new))
 
-    data[[v]] <- v.new
+    return(variable.new)
+
+  # variables <- intersect(variables, colnames(data))
+  #
+  # for(v in variables) {
+  #   v.old <- data[[v]]
+  #   if(!is.factor(v.old)) {
+  #     warning(v.old, ' is not a factor')
+  #     next
+  #   }
+  #   cat(paste0('For "',v,'"'))
+  #
+  #   levels.new <- sapply(levels(v.old), function(l) readline(paste(' ', l, 'should be replaced by: ')))
+  #   v.new <- factor(unname(sapply(v.old, function(x) levels.new[x])),
+  #                   levels = unname(levels.new))
+  #
+  #   data[[v]] <- v.new
+  # }
+  #
+  # return(data)
+}
+
+editVariableGroups <- function(variables, data) {
+  # Ensure that specified variables are in data, if data is provided
+  variables <- intersect(variables, colnames(data))
+
+  # Create a named vector denoting whether each variable is a factor or not
+  factors <- sapply(variables, function(v) is.factor(data[[v]]))
+  # Identify variables that are not factors and warn the user that these will be skipped
+  nonfactors <- names(factors)[!factors]
+  if(length(nonfactors)) warning(' The following variables are not categorical and will be skipped:\n   ',
+                                 paste(nonfactors, collapse = '\n   '))
+
+  recategorize <- select.list(choices = names(factors)[factors], multiple = T,
+                              title = paste0('Remove or merge groupings in any of these variables?\n',
+                                             '  If so, select them. If not, just hit enter.'))
+
+  # Iterate over each of the variables that is a factor
+  for(f in names(factors)[factors]) {
+    f.old <- data[[f]]
+
+    cat(paste0('For "',f,'"'))
+
+    if(f %in% recategorize) {
+      temp <- refactor(f.old)
+      f.new <- temp$variable
+      f.comments <- temp$comments
+
+      data[[paste(f,'_comments')]] <- f.comments
+    } else {
+      f.new <- relabel(f.old)
+    }
+
+    data[[v]] <- f.new
   }
 
   return(data)

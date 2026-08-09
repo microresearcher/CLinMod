@@ -7,11 +7,12 @@
 table1(
   data,
   characteristics = c(),
-  grouping,
+  group_by,
   props_within_group = F,
   formula = NULL,
   exclude = c(),
-  signif = 3
+  signif = 3,
+  stats = F
 )
 }
 \arguments{
@@ -19,7 +20,7 @@ table1(
 
 \item{characteristics}{List of characteristics to be summarized in the table. Should be column names in data.}
 
-\item{grouping}{Column name in data that specifies a factor to group summarizing statistics.}
+\item{group_by}{Column name in data that specifies a factor to group summarizing statistics.}
 
 \item{props_within_group}{Whether to calculate proportions of categorical variables within each group or across all groups.
 Defaults to across all groups.}
@@ -29,6 +30,8 @@ Defaults to across all groups.}
 \item{exclude}{(Optional) Variables in data that are to be excluded, if any.}
 
 \item{signif}{Number of significant digits to report for statistical values. Defaults to 3.}
+
+\item{stats}{Whether to test for significant difference between groups.}
 }
 \value{
 Data.frame and optional saved csv of a summary of sample characteristics for the provided data.

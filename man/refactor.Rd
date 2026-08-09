@@ -2,18 +2,16 @@
 % Please edit documentation in R/loaddata.R
 \name{refactor}
 \alias{refactor}
-\title{Change the values of levels of factor variables in data}
+\title{Add, remove, or change levels of a factor}
 \usage{
-refactor(data, variables)
+refactor(variable)
 }
 \arguments{
-\item{data}{Data}
-
-\item{variables}{Variables to refactor}
+\item{variable}{A factor to change the levels of}
 }
 \value{
-Dataframe with refactored variables
+Factor with refactored levels
 }
 \description{
-Change the values of levels of factor variables in data
+Add, remove, or change levels of a factor
 }

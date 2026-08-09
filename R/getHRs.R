@@ -35,7 +35,8 @@ getHRs <- function(data, event.time, event.status,
                             paste0(na_terms, sep = ', '))
   else if(length(intersect(subgroups, vars))) stop('Stratification variable cannot be in the predictor formula.')
 
-  # Paste predictors into a formula string. If a formula was already provided, this does not change it
+  # Paste predictors into a formula string assuming linear combination.
+  #   If a formula was already provided, this does not change it
   predictor_formula <- paste0(predictors, collapse = ' + ')
 
   data[[event.time]] <- as.numeric(data[[event.time]])
@@ -50,9 +51,6 @@ getHRs <- function(data, event.time, event.status,
                            values_from = 'count',
                            values_fn = sum, values_fill = 0)
 
-      # if(verbose) for(i in 1:sum(!is.na(subgrps.n[[subgrp]]))) {
-      #   cat()
-      # }
       if(verbose) print(subgrps.n)
 
       grouped <- data[complete.cases(data[c(event.time,
@@ -135,7 +133,7 @@ getHRs.base <- function(data,
   f <- formula(paste('surv ~', predictor_formula))
 
   fit <- survival::coxph(f, data = data, model = T)
-  colnames(fit$model) <- event.status
+  colnames(fit$model)[1] <- event.status
   fit$data <- data
 
   vars <- getFormulaVars(predictor_formula)

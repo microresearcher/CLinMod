@@ -2,16 +2,16 @@
 % Please edit documentation in R/loaddata.R
 \name{relabel}
 \alias{relabel}
-\title{Add or change labels of levels of a factor}
+\title{Change the values (not just the labels) of levels of factor variables in data}
 \usage{
-relabel(factor)
+relabel(variable)
 }
 \arguments{
-\item{factor}{A factor to change the labels of}
+\item{variable}{Variable to relabel}
 }
 \value{
-Factor with relabeled levels
+Relabeled variable
 }
 \description{
-Add or change labels of levels of a factor
+Change the values (not just the labels) of levels of factor variables in data
 }

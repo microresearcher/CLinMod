@@ -17,9 +17,9 @@ makeModel <- function(data, response, time = NULL, predictors = c(),
                                                        title = 'Please select the response variable.')
 
   # If value was given for "time" then exit with error if any of the below are true:
-  #  Length of value entered for "time" or "response are >1
-  #  If value assigned to time is not found in column names of data
-  #  If the response column is not a vector of 0's and 1's
+  #   Length of value entered for "time" or "response are >1
+  #   If value assigned to time is not found in column names of data
+  #   If the response column is not a vector of 0's and 1's
   if(length(time)) {
     # Check the "time" input
     if(length(time) > 1) stop('"time" must be a single column name in the data.')
@@ -47,7 +47,7 @@ makeModel <- function(data, response, time = NULL, predictors = c(),
   }
 
   # If at least 1 valid predictor was not specified, ask user to choose from dataframe columns
-  #  Exception in the case of an intercept, where the predictor is 1
+  #   Exception in the case of an intercept, where the predictor is 1
   predictors <- intersect(predictors, c(colnames(data), 1))
   while(length(predictors) < 1) predictors <- utils::select.list(setdiff(colnames(data), c(response, time)),
                                                                  multiple = T,
@@ -167,11 +167,13 @@ updateModel <- function(model, formula = . ~ ., ..., evaluate = T) {
     model.new <- coxph(formula, data = model$data[3:ncol(model$data)], model = T)
     colnames(model.new$model)[1] <- colnames(model$model)[1]
     model.new$data <- model$data
+
     # model.new$model <- cbind(model$model[1],
     #                          model.new$data[colnames(model.new$data) %in% c(names(model.new$xlevels))])
     # model.new$call <- as.call(str2lang(paste0('coxph(formula = ',
     #                                           deparse(model.new$formula),
     #                                           ', model = model$data[3:ncol(model$data)])')))
+
     return(model.new)
   }
 }

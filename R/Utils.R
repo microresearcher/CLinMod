@@ -54,7 +54,7 @@ saveTab <- function(table) {
   save_directory <- rstudioapi::selectDirectory()
   save_path <- rstudioapi::selectFile(path = save_directory)
   if(is.null(save_path)) save_path <- file.path(save_directory,
-                                                paste0(readline('Figure name: '),'.csv'))
+                                                paste0(readline('File name: '),'.csv'))
 
   write.csv(table, file = file.path(save_path), row.names = F)
 

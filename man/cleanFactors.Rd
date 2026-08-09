@@ -15,7 +15,7 @@ If not specified, will select all categorical variables in the data.}
 \item{exclude}{(Optional) Names of variables to exclude.
 If this and "variables" are not specified, will select all categorical variables in the data.}
 
-\item{all}{Whether or not to relabel all variables without asking before each one. Defaults to False.}
+\item{all}{Whether or not to refactor all variables without asking before each one. Defaults to False.}
 }
 \value{
 Dataframe with cleaned up factor variables

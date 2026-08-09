@@ -8,11 +8,11 @@
 #' @param include (Optional) Vector of predictor variable(s) listed in @predictors that must be included in the model.
 #' @param exclude (Optional) Vector of predictor variable(s) listed in @predictors to exclude when building the model.
 #' @param direction The mode of stepwise model creation. Can be one of "build", "prune", or "both". Defaults to "both".
-#' @param limitDim Whether to limit the dimensionality (size) of the model based on the number of observations in the data.
-#' @param dim_ratio Number used in the pruning step to determine the highest allowed dimensionality of the model (how many covariates the model is allowed to have on the right-hand side). The number of events in the data divided by @dim_ratio (rounded down to the nearest whole number) yields the highest dimensionality allowed. Defaults to 10.
-#' @param dim_ratio_lax How many more dimensions is the model allowed to have than that calculated using @dim_ratio_lax. For example, for a dataset with 26 events and a @dim_ratio of 10, 26/10 = 2.6. A @dim_ratio_lax of 0 in this case would prune a model to 2 dimensions, while a @dim_ratio_lax of 1 would prune the model to 3 dimensions (assuming a model with at least 3 dimensions was able to be built).
-#' @param family Used in the glm function: "Type of error distribution and link function to be used in the model. For glm this can be a character string naming a family function, a family function or the result of a call to a family function. For glm.fit only the third option is supported. (See family for details of family functions.)". Defaults to binomial.
-#' @param trace Whether to print out all AICs at each step. Defaults to TRUE.
+#' @param limitDim (Optional) Whether to limit the dimensionality (size) of the model based on the number of observations in the data. Defaults to True.
+#' @param dim_ratio (Optional) Number used in the pruning step to determine the highest allowed dimensionality of the model (how many covariates the model is allowed to have on the right-hand side). The number of events in the data divided by @dim_ratio (rounded down to the nearest whole number) yields the highest dimensionality allowed. Defaults to 10.
+#' @param dim_ratio_lax (Optional) How many more dimensions is the model allowed to have than that calculated using @dim_ratio_lax. For example, for a dataset with 26 events and a @dim_ratio of 10, 26/10 = 2.6. A @dim_ratio_lax of 0 in this case would prune a model to 2 dimensions, while a @dim_ratio_lax of 1 would prune the model to 3 dimensions (assuming a model with at least 3 dimensions was able to be built).
+#' @param family (Optional) Used in the glm function: "Type of error distribution and link function to be used in the model. For glm this can be a character string naming a family function, a family function or the result of a call to a family function. For glm.fit only the third option is supported. (See family for details of family functions.)". Defaults to binomial.
+#' @param trace (Optional) Whether to print out all AICs at each step. Defaults to True.
 #'
 #' @return Returns a model from the @data with the specified @response variable and @variable_of_interest, trying to include as many of the @predictors specified in @include, and excluding any @predictors specified in @exclude, pruned using @dim_ratio and @dim_ratio_lax as explained above.
 #' @export
@@ -29,9 +29,9 @@ makeOptModel <- function(data, response, time = NULL, predictors = c(),
                                                      title = 'Please select the response variable.')
 
   # If value was given for "time" then exit with error if any of the below are true:
-  #  Length of value entered for "time" or "response are >1
-  #  If value assigned to time is not found in column names of data
-  #  If the response column is not a vector of 0's and 1's
+  #   Length of value entered for "time" or "response are >1
+  #   If value assigned to time is not found in column names of data
+  #   If the response column is not a vector of 0's and 1's
   if(length(time)) {
     # Check the "time" input
     if(length(time) > 1) stop('"time" must be a single column name in the data.')
@@ -60,7 +60,8 @@ makeOptModel <- function(data, response, time = NULL, predictors = c(),
 
   # If at least 2 valid predictors were not specified, ask user to choose from dataframe columns
   predictors <- intersect(predictors, colnames(data))
-  while(length(predictors) < 2) predictors <- utils::select.list(setdiff(colnames(data), c(response, time)),
+  while(length(predictors) < 2) predictors <- utils::select.list(setdiff(colnames(data),
+                                                                         c(response, time)),
                                                                  multiple = T,
                                                                  title = 'Please select at least 2 potential predictor variables.')
 
@@ -148,16 +149,17 @@ makeOptModel <- function(data, response, time = NULL, predictors = c(),
                                    paste(models.opt$built$formula[3]),
                                    '\n  AIC:', extractAIC(models.opt$built)[2],'\n')
 
-  ### Now... what to do with model.pruned and model.built?
+  # TODO: currently just choosing the model with lower AIC
+  #   Should we try to find an minimum between model.pruned and model.built?
 
   model.opt <- models.opt[[order(sapply(models.opt,
                                         function (m) extractAIC(m)[2]))[1]]]
 
-  cat('\n<<< === FINAL MODEL === >>>\n  ',
-      paste(model.opt$formula[2]),
-      paste(model.opt$formula[1]),
-      paste(model.opt$formula[3]),
-      '\n\n')
+  message('\n<<< === FINAL MODEL === >>>\n  ',
+          paste(model.opt$formula[2]),
+          paste(model.opt$formula[1]),
+          paste(model.opt$formula[3]),
+          '\n\n')
 
   return(model.opt)
 }
